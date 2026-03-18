@@ -219,8 +219,9 @@ async function processArticles() {
       skippedCount++;
     }
     
-    // Rate limiting: 10 second delay between API calls
-    if (i < articles.length - 1) {
+    // Rate limiting: 10 second delay between API calls (but not after last article)
+    if (i < articles.length - 1 && apiResponse !== null) {
+      console.log('Waiting 10 seconds before next request...');
       await new Promise(resolve => setTimeout(resolve, 10000));
     }
   }

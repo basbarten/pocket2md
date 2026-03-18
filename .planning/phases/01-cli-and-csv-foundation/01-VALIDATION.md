@@ -1,10 +1,11 @@
 ---
 phase: 1
 slug: cli-and-csv-foundation
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: complete
+nyquist_compliant: true
+wave_0_complete: true
 created: Wed Mar 18 2026
+updated: Wed Mar 18 2026
 ---
 
 # Phase 1 — Validation Strategy
@@ -38,12 +39,12 @@ created: Wed Mar 18 2026
 
 | task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 1-01-01 | 01 | 1 | CLI-01 | unit | `npm test -- --testNamePattern="CLI argument parsing"` | ❌ W0 | ⬜ pending |
-| 1-01-02 | 01 | 1 | CLI-02 | unit | `npm test -- --testNamePattern="output directory"` | ❌ W0 | ⬜ pending |
-| 1-01-03 | 01 | 1 | CLI-03 | unit | `npm test -- --testNamePattern="progress display"` | ❌ W0 | ⬜ pending |
-| 1-02-01 | 02 | 2 | CSV-01 | unit | `npm test -- --testNamePattern="CSV reading"` | ❌ W0 | ⬜ pending |
-| 1-02-02 | 02 | 2 | CSV-02 | unit | `npm test -- --testNamePattern="URL extraction"` | ❌ W0 | ⬜ pending |
-| 1-02-03 | 02 | 2 | CSV-03 | unit | `npm test -- --testNamePattern="CSV error handling"` | ❌ W0 | ⬜ pending |
+| 1-01-01 | 01 | 1 | CLI-01 | unit | `npm test -- --testNamePattern="CLI argument parsing"` | ✅ | ✅ green |
+| 1-01-02 | 01 | 1 | CLI-02 | unit | `npm test -- --testNamePattern="output directory"` | ✅ | ✅ green |
+| 1-01-03 | 01 | 1 | CLI-03 | unit | `npm test -- --testNamePattern="progress display"` | ✅ | ✅ green |
+| 1-02-01 | 02 | 2 | CSV-01 | unit | `npm test -- --testNamePattern="CSV reading"` | ✅ | ✅ green |
+| 1-02-02 | 02 | 2 | CSV-02 | unit | `npm test -- --testNamePattern="URL extraction"` | ✅ | ✅ green |
+| 1-02-03 | 02 | 2 | CSV-03 | unit | `npm test -- --testNamePattern="CSV error handling"` | ✅ | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -51,12 +52,12 @@ created: Wed Mar 18 2026
 
 ## Wave 0 Requirements
 
-- [ ] `tests/cli-args.test.js` — stubs for CLI-01, CLI-02, CLI-03
-- [ ] `tests/csv-processor.test.js` — stubs for CSV-01, CSV-02, CSV-03
-- [ ] `package.json` — jest dependency and test script
-- [ ] `jest.config.js` — basic configuration
+- [x] `tests/cli-args.test.js` — comprehensive tests for CLI-01, CLI-02, CLI-03
+- [x] `tests/csv-processor.test.js` — comprehensive tests for CSV-01, CSV-02, CSV-03
+- [x] `package.json` — jest dependency and test script configured
+- [x] `jest.config.js` — basic configuration created
 
-*Wave 0 installs testing infrastructure and creates test stubs for all requirements.*
+*Wave 0 complete: testing infrastructure installed and comprehensive test suites created.*
 
 ---
 
@@ -72,11 +73,11 @@ created: Wed Mar 18 2026
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 5s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 5s (average ~1.2s)
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** ✅ COMPLETE

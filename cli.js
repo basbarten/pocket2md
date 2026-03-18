@@ -198,13 +198,24 @@ async function processArticles() {
     };
     
     // Fetch article content from defuddle.md API
-    const content = await fetchArticleContent(articleData.url);
+    const apiResponse = await fetchArticleContent(articleData.url);
     
-    if (content) {
-      // Successfully fetched content
+    if (apiResponse) {
+      // Process API response and extract markdown content
+      const extractedContent = processApiResponse(apiResponse);
+      
+      // Store the processed article data with content for later use
+      const processedArticle = {
+        ...articleData,
+        content: extractedContent,
+        contentLength: extractedContent.length
+      };
+      
+      console.log(`API response processed: ${extractedContent.length} characters extracted`);
       successfulCount++;
     } else {
       // API call failed, count as skipped
+      console.warn(`Failed to fetch content for article ${articleNum}`);
       skippedCount++;
     }
     
@@ -305,6 +316,31 @@ async function fetchArticleContent(url) {
     console.warn(`Network error fetching ${url}: ${error.message}`);
     return null;
   }
+}
+
+/**
+ * Process API response and extract markdown content
+ * @param {string} apiResponse - Raw API response content
+ * @returns {string} - Extracted markdown content
+ */
+function processApiResponse(apiResponse) {
+  if (!apiResponse || typeof apiResponse !== 'string') {
+    return '';
+  }
+  
+  // Check if response has YAML frontmatter (starts with ---)
+  if (apiResponse.startsWith('---\n')) {
+    // Find the end of frontmatter
+    const frontmatterEnd = apiResponse.indexOf('\n---\n', 4);
+    if (frontmatterEnd !== -1) {
+      // Extract content after frontmatter
+      const content = apiResponse.substring(frontmatterEnd + 5).trim();
+      return content;
+    }
+  }
+  
+  // If no frontmatter found, return the full response
+  return apiResponse.trim();
 }
 
 function showVersion() {

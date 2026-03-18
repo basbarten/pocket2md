@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const Papa = require('papaparse');
 
 // Parse command-line arguments
 const args = process.argv.slice(2);
@@ -79,6 +80,73 @@ try {
 // Print startup messages
 console.log(`Processing Pocket export: ${parsedArgs.input}`);
 console.log(`Output directory: ${parsedArgs.output}`);
+
+// Parse CSV file
+try {
+  console.log('Reading CSV file...');
+  const csvContent = fs.readFileSync(parsedArgs.input, 'utf8');
+  
+  const parseResult = Papa.parse(csvContent, {
+    header: true,
+    skipEmptyLines: true
+  });
+  
+  if (parseResult.errors.length > 0) {
+    console.error('CSV parsing errors:', parseResult.errors);
+  }
+  
+  const articles = parseResult.data;
+  console.log(`Found ${articles.length} rows in CSV`);
+  
+  // Validate required columns exist
+  if (articles.length > 0) {
+    const requiredColumns = ['title', 'url', 'time_added', 'tags'];
+    const firstRow = articles[0];
+    const missingColumns = requiredColumns.filter(col => !(col in firstRow));
+    
+    if (missingColumns.length > 0) {
+      console.error(`Error: CSV missing required columns: ${missingColumns.join(', ')}`);
+      process.exit(1);
+    }
+  }
+  
+  // Process each article with progress reporting
+  let successfulCount = 0;
+  let skippedCount = 0;
+  
+  for (let i = 0; i < articles.length; i++) {
+    const article = articles[i];
+    const articleNum = i + 1;
+    
+    console.log(`Processing article ${articleNum}/${articles.length}...`);
+    
+    // Skip articles with missing URLs
+    if (!article.url || article.url.trim() === '') {
+      console.warn(`Warning: Skipping article ${articleNum} - missing URL`);
+      skippedCount++;
+      continue;
+    }
+    
+    // Extract article data
+    const articleData = {
+      title: article.title || 'Untitled',
+      url: article.url.trim(),
+      time_added: article.time_added || '',
+      tags: article.tags || ''
+    };
+    
+    // For now, just count as successful (content extraction comes in later phases)
+    successfulCount++;
+  }
+  
+  // Show final summary
+  const totalProcessed = successfulCount + skippedCount;
+  console.log(`Processed ${totalProcessed} articles: ${successfulCount} successful, ${skippedCount} failed`);
+  
+} catch (error) {
+  console.error('Error processing CSV file:', error.message);
+  process.exit(1);
+}
 
 function showHelp() {
   console.log(`

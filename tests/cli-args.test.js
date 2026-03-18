@@ -124,7 +124,6 @@ Test Article,https://example.com,1407757755,tag1|tag2,archive`;
     
     test('should create nested output directory paths when specified', () => {
       // Test that CLI can create the output directory at any specified path
-      // Note: Content is still flat within the directory (per requirements)
       const nestedDir = path.join(testOutputDir, 'nested', 'deep');
       
       try {

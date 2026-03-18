@@ -94,7 +94,7 @@ Test Article,https://example.com,1407757755,tag1|tag2,archive`;
         fail('Should have thrown an error');
       } catch (error) {
         const output = error.stdout + error.stderr;
-        expect(output).toContain('Error: Unknown argument: --unknown-flag');
+        expect(output).toContain('Error: Unknown option \'--unknown-flag\'');
         expect(output).toContain('Run with --help to see usage information');
       }
     });

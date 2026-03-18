@@ -4,38 +4,49 @@ const fs = require('fs');
 const path = require('path');
 const Papa = require('papaparse');
 
-// Parse command-line arguments
-const args = process.argv.slice(2);
-const parsedArgs = {};
+// Parse command-line arguments using Node.js built-in parseArgs
+const { parseArgs } = require('node:util');
 
-for (let i = 0; i < args.length; i++) {
-  const arg = args[i];
+let parsedArgs;
+try {
+  const { values } = parseArgs({
+    options: {
+      help: {
+        type: 'boolean',
+        short: 'h'
+      },
+      version: {
+        type: 'boolean', 
+        short: 'v'
+      },
+      input: {
+        type: 'string',
+        short: 'i'
+      },
+      output: {
+        type: 'string',
+        short: 'o'
+      }
+    },
+    allowPositionals: false
+  });
   
-  if (arg === '--help' || arg === '-h') {
+  // Handle help and version flags
+  if (values.help) {
     showHelp();
     process.exit(0);
-  } else if (arg === '--version' || arg === '-v') {
+  }
+  
+  if (values.version) {
     showVersion();
     process.exit(0);
-  } else if (arg === '--input' || arg === '-i') {
-    if (i + 1 >= args.length || args[i + 1].startsWith('-')) {
-      console.error('Error: --input flag requires a file path');
-      process.exit(1);
-    }
-    parsedArgs.input = args[i + 1];
-    i++; // Skip next argument as it's the value
-  } else if (arg === '--output' || arg === '-o') {
-    if (i + 1 >= args.length || args[i + 1].startsWith('-')) {
-      console.error('Error: --output flag requires a directory path');
-      process.exit(1);
-    }
-    parsedArgs.output = args[i + 1];
-    i++; // Skip next argument as it's the value
-  } else {
-    console.error(`Error: Unknown argument: ${arg}`);
-    console.error('Run with --help to see usage information');
-    process.exit(1);
   }
+  
+  parsedArgs = values;
+} catch (err) {
+  console.error(`Error: ${err.message}`);
+  console.error('Run with --help to see usage information');
+  process.exit(1);
 }
 
 // Set default output directory
@@ -44,7 +55,7 @@ if (!parsedArgs.output) {
 }
 
 // Show help if no arguments provided
-if (args.length === 0) {
+if (process.argv.slice(2).length === 0) {
   showHelp();
   process.exit(0);
 }
@@ -201,8 +212,8 @@ USAGE:
 OPTIONS:
   -i, --input <file>      Path to Pocket CSV export file (required)
   -o, --output <dir>      Output directory for markdown files (default: ./output/)
-  -h, --help             Show this help message
-  -v, --version          Show version number
+  -h, --help              Show this help message
+  -v, --version           Show version number
 
 EXAMPLES:
   pocket2md --input data/pocket_export.csv

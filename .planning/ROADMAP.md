@@ -54,7 +54,11 @@ Plans:
 5. CLI implements 10-second rate limiting between API calls
 6. CLI processes API responses to extract cleaned markdown content
 
-**Plans:** TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — URL Validation and API Integration
+- [ ] 02-02-PLAN.md — Rate Limiting and Error Handling
 
 ---
 

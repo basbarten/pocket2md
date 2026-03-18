@@ -167,7 +167,8 @@ async function processArticles() {
   
   // Process each article with progress reporting
   let successfulCount = 0;
-  let skippedCount = 0;
+  let skippedCount = 0; // Invalid URLs, missing URLs
+  let failedCount = 0;  // API/network errors
   
   for (let i = 0; i < articles.length; i++) {
     const article = articles[i];
@@ -214,9 +215,8 @@ async function processArticles() {
       console.log(`API response processed: ${extractedContent.length} characters extracted`);
       successfulCount++;
     } else {
-      // API call failed, count as skipped
-      console.warn(`Failed to fetch content for article ${articleNum}`);
-      skippedCount++;
+      // API call failed, count as failed (not skipped - these are network/API errors)
+      failedCount++;
     }
     
     // Rate limiting: 10 second delay between API calls (but not after last article)
@@ -227,8 +227,8 @@ async function processArticles() {
   }
   
     // Show final summary
-    const totalProcessed = successfulCount + skippedCount;
-    console.log(`Processed ${totalProcessed} articles: ${successfulCount} successful, ${skippedCount} failed`);
+    const totalProcessed = successfulCount + skippedCount + failedCount;
+    console.log(`Processed ${totalProcessed} articles: ${successfulCount} successful, ${skippedCount} skipped (validation), ${failedCount} failed (network/API)`);
     
   } catch (error) {
     console.error('Error processing CSV file:', error.message);
@@ -304,17 +304,64 @@ async function fetchArticleContent(url) {
     
     console.log(`Fetching: ${url}`);
     
-    const response = await fetch(apiUrl);
+    // Create abort controller for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    
+    const response = await fetch(apiUrl, {
+      signal: controller.signal,
+      headers: {
+        'User-Agent': 'pocket2md/1.0'
+      }
+    });
+    
+    clearTimeout(timeoutId);
     
     if (!response.ok) {
-      console.warn(`API request failed for ${url}: ${response.status} ${response.statusText}`);
+      let errorMessage = `${response.status} ${response.statusText}`;
+      if (response.status === 404) {
+        errorMessage = 'Content not found';
+      } else if (response.status === 500) {
+        errorMessage = 'Server error';
+      } else if (response.status === 503) {
+        errorMessage = 'Service unavailable';
+      } else if (response.status >= 400 && response.status < 500) {
+        errorMessage = 'Client error';
+      } else if (response.status >= 500) {
+        errorMessage = 'Server error';
+      }
+      
+      console.warn(`Warning: Failed to fetch ${url} - ${errorMessage}`);
       return null;
     }
     
     const content = await response.text();
+    
+    // Validate response content
+    if (!content || content.trim() === '') {
+      console.warn(`Warning: Failed to fetch ${url} - Empty response`);
+      return null;
+    }
+    
     return content;
   } catch (error) {
-    console.warn(`Network error fetching ${url}: ${error.message}`);
+    let errorMessage = 'Unknown error';
+    
+    if (error.name === 'AbortError') {
+      errorMessage = 'Request timeout (30s)';
+    } else if (error.code === 'ENOTFOUND') {
+      errorMessage = 'DNS resolution failed';
+    } else if (error.code === 'ECONNREFUSED') {
+      errorMessage = 'Connection refused';
+    } else if (error.code === 'ECONNRESET') {
+      errorMessage = 'Connection reset';
+    } else if (error.code === 'ETIMEDOUT') {
+      errorMessage = 'Connection timeout';
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    
+    console.warn(`Warning: Failed to fetch ${url} - ${errorMessage}`);
     return null;
   }
 }

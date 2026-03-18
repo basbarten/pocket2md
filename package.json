@@ -1,8 +1,11 @@
 {
-  "name": "pocket-to-obsidian",
+  "name": "pocket-to-markdown",
   "version": "1.0.0",
-  "description": "CLI tool to read a Pocket export, fetch all articles, store them as markdown, for reading in Obisidian",
+  "description": "CLI tool to read a Pocket export, fetch all articles, store them as markdown, for reading in markdown tools",
   "main": "cli.js",
+  "bin": {
+    "pocket2md": "./cli.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

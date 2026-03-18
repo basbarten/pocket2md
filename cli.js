@@ -92,22 +92,23 @@ try {
 console.log(`Processing Pocket export: ${parsedArgs.input}`);
 console.log(`Output directory: ${parsedArgs.output}`);
 
-// Parse CSV file
-try {
-  console.log('Reading CSV file...');
-  
-  // Read file with UTF-8 encoding requirement
-  let csvContent;
+// Parse CSV file and process articles
+async function processArticles() {
   try {
-    csvContent = fs.readFileSync(parsedArgs.input, 'utf8');
-  } catch (err) {
-    if (err.code === 'ENOENT') {
-      console.error(`Error: CSV file not found: ${parsedArgs.input}`);
-    } else {
-      console.error(`Error: Cannot read CSV file. Ensure file is UTF-8 encoded: ${err.message}`);
+    console.log('Reading CSV file...');
+    
+    // Read file with UTF-8 encoding requirement
+    let csvContent;
+    try {
+      csvContent = fs.readFileSync(parsedArgs.input, 'utf8');
+    } catch (err) {
+      if (err.code === 'ENOENT') {
+        console.error(`Error: CSV file not found: ${parsedArgs.input}`);
+      } else {
+        console.error(`Error: Cannot read CSV file. Ensure file is UTF-8 encoded: ${err.message}`);
+      }
+      process.exit(1);
     }
-    process.exit(1);
-  }
   
   // Check for empty CSV files
   if (csvContent.trim() === '') {
@@ -196,18 +197,38 @@ try {
       tags: article.tags || ''
     };
     
-    // For now, just count as successful (content extraction comes in later phases)
-    successfulCount++;
+    // Fetch article content from defuddle.md API
+    const content = await fetchArticleContent(articleData.url);
+    
+    if (content) {
+      // Successfully fetched content
+      successfulCount++;
+    } else {
+      // API call failed, count as skipped
+      skippedCount++;
+    }
+    
+    // Rate limiting: 10 second delay between API calls
+    if (i < articles.length - 1) {
+      await new Promise(resolve => setTimeout(resolve, 10000));
+    }
   }
   
-  // Show final summary
-  const totalProcessed = successfulCount + skippedCount;
-  console.log(`Processed ${totalProcessed} articles: ${successfulCount} successful, ${skippedCount} failed`);
-  
-} catch (error) {
-  console.error('Error processing CSV file:', error.message);
-  process.exit(1);
+    // Show final summary
+    const totalProcessed = successfulCount + skippedCount;
+    console.log(`Processed ${totalProcessed} articles: ${successfulCount} successful, ${skippedCount} failed`);
+    
+  } catch (error) {
+    console.error('Error processing CSV file:', error.message);
+    process.exit(1);
+  }
 }
+
+// Run the async processing
+processArticles().catch(error => {
+  console.error('Unexpected error:', error.message);
+  process.exit(1);
+});
 
 function showHelp() {
   console.log(`
@@ -256,6 +277,33 @@ function validateUrl(url) {
     return true;
   } catch (error) {
     return false;
+  }
+}
+
+/**
+ * Fetches article content from defuddle.md API
+ * @param {string} url - The article URL to fetch
+ * @returns {Promise<string|null>} - Markdown content or null on error
+ */
+async function fetchArticleContent(url) {
+  try {
+    const encodedUrl = encodeURIComponent(url);
+    const apiUrl = `https://defuddle.md/${encodedUrl}`;
+    
+    console.log(`Fetching: ${url}`);
+    
+    const response = await fetch(apiUrl);
+    
+    if (!response.ok) {
+      console.warn(`API request failed for ${url}: ${response.status} ${response.statusText}`);
+      return null;
+    }
+    
+    const content = await response.text();
+    return content;
+  } catch (error) {
+    console.warn(`Network error fetching ${url}: ${error.message}`);
+    return null;
   }
 }
 

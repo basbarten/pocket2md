@@ -11,13 +11,13 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **CLI-01**: User can run `cli.js --input <file.csv>` to process Pocket export
 - [x] **CLI-02**: User provides output directory path (default: `output/`)
-- [ ] **CLI-03**: CLI prints progress: Processing article N/M, success/error for each
+- [x] **CLI-03**: CLI prints progress: Processing article N/M, success/error for each
 
 ### CSV Processing
 
-- [ ] **CSV-01**: CLI reads Pocket export CSV format
-- [ ] **CSV-02**: CLI extracts article URLs from CSV rows
-- [ ] **CSV-03**: CLI handles CSV parsing errors gracefully
+- [x] **CSV-01**: CLI reads Pocket export CSV format
+- [x] **CSV-02**: CLI extracts article URLs from CSV rows
+- [x] **CSV-03**: CLI handles CSV parsing errors gracefully
 
 ### HTML Fetching and Cleaning
 
@@ -78,10 +78,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | CLI-01 | Phase 1 | Complete |
 | CLI-02 | Phase 1 | Complete |
-| CLI-03 | Phase 1 | Pending |
-| CSV-01 | Phase 1 | Pending |
-| CSV-02 | Phase 1 | Pending |
-| CSV-03 | Phase 1 | Pending |
+| CLI-03 | Phase 1 | Complete |
+| CSV-01 | Phase 1 | Complete |
+| CSV-02 | Phase 1 | Complete |
+| CSV-03 | Phase 1 | Complete |
 | FETCH-01 | Phase 2 | Pending |
 | FETCH-02 | Phase 2 | Pending |
 | FETCH-03 | Phase 2 | Pending |

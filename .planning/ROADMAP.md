@@ -9,7 +9,7 @@
 
 ## Phases
 
-- [ ] **Phase 1: CLI and CSV Foundation** - Setup CLI for Pocket export processing
+- [x] **Phase 1: CLI and CSV Foundation** - Setup CLI for Pocket export processing
 - [ ] **Phase 2: Content Extraction** - Fetch and clean articles from web
 - [ ] **Phase 3: Markdown Output** - Save cleaned HTML as markdown files
 - [ ] **Phase 4: Testing and Validation** - Verify all requirements work end-to-end
@@ -35,7 +35,7 @@
 
 Plans:
 - [x] 01-01-PLAN.md — CLI Foundation and Argument Parsing (completed 2026-03-18)
-- [ ] 01-02-PLAN.md — CSV Processing and Integration
+- [x] 01-02-PLAN.md — CSV Processing and Integration (completed 2026-03-18)
 
 ---
 

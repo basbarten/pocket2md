@@ -169,12 +169,13 @@ async function processArticles() {
   let successfulCount = 0;
   let skippedCount = 0; // Invalid URLs, missing URLs
   let failedCount = 0;  // API/network errors
+  const startTime = Date.now();
   
   for (let i = 0; i < articles.length; i++) {
     const article = articles[i];
     const articleNum = i + 1;
     
-    console.log(`Processing article ${articleNum}/${articles.length}...`);
+    console.log(`Processing article ${articleNum}/${articles.length}: ${article.url ? article.url.trim() : 'No URL'}`);
     
     // Skip articles with missing URLs
     if (!article.url || article.url.trim() === '') {
@@ -212,7 +213,7 @@ async function processArticles() {
         contentLength: extractedContent.length
       };
       
-      console.log(`API response processed: ${extractedContent.length} characters extracted`);
+      console.log(`Success: ${extractedContent.length} characters extracted`);
       successfulCount++;
     } else {
       // API call failed, count as failed (not skipped - these are network/API errors)
@@ -221,14 +222,34 @@ async function processArticles() {
     
     // Rate limiting: 10 second delay between API calls (but not after last article)
     if (i < articles.length - 1 && apiResponse !== null) {
-      console.log('Waiting 10 seconds before next request...');
+      const remaining = articles.length - i - 1;
+      const estimatedMinutes = Math.ceil((remaining * 10) / 60);
+      console.log(`Waiting 10 seconds before next request... (${remaining} articles remaining, ~${estimatedMinutes} minutes)`);
       await new Promise(resolve => setTimeout(resolve, 10000));
     }
   }
   
-    // Show final summary
+    // Show final summary with timing information
+    const endTime = Date.now();
+    const totalTimeMs = endTime - startTime;
+    const totalTimeMinutes = Math.round(totalTimeMs / 1000 / 60 * 10) / 10; // Round to 1 decimal
     const totalProcessed = successfulCount + skippedCount + failedCount;
-    console.log(`Processed ${totalProcessed} articles: ${successfulCount} successful, ${skippedCount} skipped (validation), ${failedCount} failed (network/API)`);
+    const avgTimePerArticle = totalProcessed > 0 ? Math.round((totalTimeMs / 1000) / totalProcessed) : 0;
+    
+    console.log('');
+    console.log('=== Processing Complete ===');
+    console.log(`Total time: ${totalTimeMinutes} minutes`);
+    console.log(`Articles processed: ${totalProcessed}`);
+    console.log(`  • ${successfulCount} successful (content extracted)`);
+    console.log(`  • ${skippedCount} skipped (invalid URLs)`);
+    console.log(`  • ${failedCount} failed (network/API errors)`);
+    console.log(`Average time per article: ${avgTimePerArticle} seconds`);
+    
+    if (successfulCount > 0) {
+      console.log(`\n✅ Successfully processed ${successfulCount} articles for Phase 3 markdown generation`);
+    } else {
+      console.log(`\n⚠️  No articles successfully processed`);
+    }
     
   } catch (error) {
     console.error('Error processing CSV file:', error.message);

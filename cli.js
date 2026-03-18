@@ -55,8 +55,30 @@ if (!parsedArgs.input) {
   process.exit(1);
 }
 
-// Main CLI execution continues here...
-console.log('CLI initialized with:', parsedArgs);
+// Validate input file exists and is readable
+if (!fs.existsSync(parsedArgs.input)) {
+  console.error(`Error: Input file not found: ${parsedArgs.input}`);
+  process.exit(1);
+}
+
+try {
+  fs.accessSync(parsedArgs.input, fs.constants.R_OK);
+} catch (err) {
+  console.error(`Error: Cannot read input file: ${parsedArgs.input}`);
+  process.exit(1);
+}
+
+// Create output directory if it doesn't exist
+try {
+  fs.mkdirSync(parsedArgs.output, { recursive: true });
+} catch (err) {
+  console.error(`Error: Cannot create output directory: ${parsedArgs.output}`);
+  process.exit(1);
+}
+
+// Print startup messages
+console.log(`Processing Pocket export: ${parsedArgs.input}`);
+console.log(`Output directory: ${parsedArgs.output}`);
 
 function showHelp() {
   console.log(`

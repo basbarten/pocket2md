@@ -84,28 +84,71 @@ console.log(`Output directory: ${parsedArgs.output}`);
 // Parse CSV file
 try {
   console.log('Reading CSV file...');
-  const csvContent = fs.readFileSync(parsedArgs.input, 'utf8');
   
-  const parseResult = Papa.parse(csvContent, {
-    header: true,
-    skipEmptyLines: true
-  });
+  // Read file with UTF-8 encoding requirement
+  let csvContent;
+  try {
+    csvContent = fs.readFileSync(parsedArgs.input, 'utf8');
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      console.error(`Error: CSV file not found: ${parsedArgs.input}`);
+    } else {
+      console.error(`Error: Cannot read CSV file. Ensure file is UTF-8 encoded: ${err.message}`);
+    }
+    process.exit(1);
+  }
   
+  // Check for empty CSV files
+  if (csvContent.trim() === '') {
+    console.warn('Warning: CSV file is empty');
+    console.log('Processed 0 articles: 0 successful, 0 failed');
+    return;
+  }
+  
+  // Parse CSV with error handling
+  let parseResult;
+  try {
+    parseResult = Papa.parse(csvContent, {
+      header: true,
+      skipEmptyLines: true
+    });
+  } catch (parseErr) {
+    console.error(`Error: Invalid CSV format: ${parseErr.message}`);
+    process.exit(1);
+  }
+  
+  // Handle Papa Parse errors
   if (parseResult.errors.length > 0) {
-    console.error('CSV parsing errors:', parseResult.errors);
+    const criticalErrors = parseResult.errors.filter(err => err.type === 'Delimiter' || err.type === 'Quotes');
+    if (criticalErrors.length > 0) {
+      console.error('Error: CSV file has malformed structure:');
+      criticalErrors.forEach(err => console.error(`  Line ${err.row || 'unknown'}: ${err.message}`));
+      process.exit(1);
+    } else {
+      // Non-critical errors - log but continue
+      console.warn('CSV parsing warnings:');
+      parseResult.errors.forEach(err => console.warn(`  Line ${err.row || 'unknown'}: ${err.message}`));
+    }
   }
   
   const articles = parseResult.data;
   console.log(`Found ${articles.length} rows in CSV`);
   
   // Validate required columns exist
+  if (articles.length === 0 && csvContent.trim() !== '') {
+    console.error('Error: No valid data rows found in CSV file');
+    process.exit(1);
+  }
+  
   if (articles.length > 0) {
     const requiredColumns = ['title', 'url', 'time_added', 'tags'];
     const firstRow = articles[0];
+    const availableColumns = Object.keys(firstRow);
     const missingColumns = requiredColumns.filter(col => !(col in firstRow));
     
     if (missingColumns.length > 0) {
       console.error(`Error: CSV missing required columns: ${missingColumns.join(', ')}`);
+      console.error(`Available columns: ${availableColumns.join(', ')}`);
       process.exit(1);
     }
   }

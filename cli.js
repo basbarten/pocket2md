@@ -18,14 +18,14 @@ for (let i = 0; i < args.length; i++) {
     showVersion();
     process.exit(0);
   } else if (arg === '--input' || arg === '-i') {
-    if (i + 1 >= args.length) {
+    if (i + 1 >= args.length || args[i + 1].startsWith('-')) {
       console.error('Error: --input flag requires a file path');
       process.exit(1);
     }
     parsedArgs.input = args[i + 1];
     i++; // Skip next argument as it's the value
   } else if (arg === '--output' || arg === '-o') {
-    if (i + 1 >= args.length) {
+    if (i + 1 >= args.length || args[i + 1].startsWith('-')) {
       console.error('Error: --output flag requires a directory path');
       process.exit(1);
     }

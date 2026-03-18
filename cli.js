@@ -181,6 +181,13 @@ try {
       continue;
     }
     
+    // Validate URL format before processing
+    if (!validateUrl(article.url)) {
+      console.warn(`Warning: Skipping article ${articleNum} - invalid URL format: ${article.url.trim()}`);
+      skippedCount++;
+      continue;
+    }
+    
     // Extract article data
     const articleData = {
       title: article.title || 'Untitled',
@@ -222,6 +229,34 @@ EXAMPLES:
 
 For more information, visit: https://github.com/pocket2md
 `);
+}
+
+/**
+ * Validates a URL format before making API requests
+ * @param {string} url - The URL to validate
+ * @returns {boolean} - true if URL is valid, false otherwise
+ */
+function validateUrl(url) {
+  if (!url || typeof url !== 'string' || url.trim() === '') {
+    return false;
+  }
+  
+  const trimmedUrl = url.trim();
+  
+  try {
+    const urlObj = new URL(trimmedUrl);
+    // Only accept http and https protocols
+    if (!['http:', 'https:'].includes(urlObj.protocol)) {
+      return false;
+    }
+    // Check for valid hostname
+    if (!urlObj.hostname || urlObj.hostname === '') {
+      return false;
+    }
+    return true;
+  } catch (error) {
+    return false;
+  }
 }
 
 function showVersion() {

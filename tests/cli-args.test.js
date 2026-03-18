@@ -101,6 +101,8 @@ Test Article,https://example.com,1407757755,tag1|tag2,archive`;
   });
   
   describe('output directory', () => {
+    // Tests for output directory PATH creation (where to put the flat output)
+    // Note: Content within the directory is always flat per project requirements
     test('should use default output directory when not specified', () => {
       const result = execSync(`node cli.js --input "${testCsvFile}"`, { encoding: 'utf8' });
       
@@ -120,7 +122,9 @@ Test Article,https://example.com,1407757755,tag1|tag2,archive`;
       expect(fs.statSync(testOutputDir).isDirectory()).toBe(true);
     });
     
-    test('should handle output directory creation with nested paths', () => {
+    test('should create nested output directory paths when specified', () => {
+      // Test that CLI can create the output directory at any specified path
+      // Note: Content is still flat within the directory (per requirements)
       const nestedDir = path.join(testOutputDir, 'nested', 'deep');
       
       try {

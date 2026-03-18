@@ -220,7 +220,7 @@ EXAMPLES:
   pocket2md --input data/pocket_export.csv --output ./my_articles/
   pocket2md -i data/part_000000.csv -o ./output/
 
-For more information, visit: https://github.com/pocket-to-markdown
+For more information, visit: https://github.com/pocket2md
 `);
 }
 

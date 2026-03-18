@@ -15,7 +15,7 @@ progress:
 
 # STATE: Pocket to Obsidian CLI
 
-**Project:** pocket-to-obsidian
+**Project:** pocket2md
 **Created:** Wed Mar 11 2026
 
 ---
@@ -77,7 +77,7 @@ progress:
 ### Project Structure
 
 ```
-pocket-to-obsidian/
+pocket2md/
 ├── .planning/           # Documentation and roadmap
 │   ├── PROJECT.md
 │   ├── REQUIREMENTS.md
@@ -106,8 +106,8 @@ pocket-to-obsidian/
 ## Session Continuity
 
 **Last Updated:** Wed Mar 18 2026
-**Last session:** 2026-03-18T13:29:28Z
-**Stopped at:** Completed 01-02-PLAN.md
+**Last session:** 2026-03-18T13:35:34Z
+**Stopped at:** Session resumed, proceeding to Phase 2 planning
 
 **Session Context:**
 - Architecture changed: Replaced DOMPurify + Defuddle with defuddle.md API service

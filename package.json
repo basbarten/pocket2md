@@ -1,5 +1,5 @@
 {
-  "name": "pocket-to-markdown",
+  "name": "pocket2md",
   "version": "1.0.0",
   "description": "CLI tool to read a Pocket export, fetch all articles, store them as markdown, for reading in markdown tools",
   "main": "cli.js",

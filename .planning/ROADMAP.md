@@ -75,7 +75,11 @@ Plans:
 3. Filename conflicts are resolved by appending numbers (e.g., "title-1.md", "title-2.md")
 4. Each markdown file contains: article title, original URL, and date fetched at the top
 
-**Plans:** TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — File System Operations and Filename Handling
+- [ ] 03-02-PLAN.md — Metadata Formatting and CLI Integration
 
 ---
 

@@ -26,7 +26,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **FETCH-03**: Cli validates URLs before fetching (basic URL format check)
 - [ ] **API-01**: CLI sends article URLs to defuddle.md API service (`curl defuddle.md/<<url>>`)
 - [ ] **API-02**: CLI handles API errors (network failures, service unavailable) and skips article
-- [ ] **API-03**: CLI implements rate limiting (10 second delay between API calls)
+- [ ] **API-03**: CLI implements rate limiting (5 second delay between API calls)
 - [ ] **API-04**: CLI processes API response to extract cleaned markdown content
 
 ### Markdown Output
@@ -34,7 +34,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **MD-01**: CLI creates output directory (default: `./output/`)
 - [ ] **MD-02**: CLI saves markdown files with sanitized article title as filename
 - [ ] **MD-03**: CLI handles filename conflicts (append number if title exists)
-- [ ] **MD-04**: CLI includes basic metadata in markdown file (title, URL, date fetched)
+- [x] **MD-04**: CLI includes basic metadata in markdown file (title, URL, date fetched)
 
 ## v2 Requirements
 
@@ -92,7 +92,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MD-01 | Phase 3 | Pending |
 | MD-02 | Phase 3 | Pending |
 | MD-03 | Phase 3 | Pending |
-| MD-04 | Phase 3 | Pending |
+| MD-04 | Phase 3 | Complete |
 
 **Coverage:**
 - v1 requirements: 17 total

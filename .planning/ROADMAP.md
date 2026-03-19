@@ -79,7 +79,7 @@ Plans:
 
 Plans:
 - [x] 03-01-PLAN.md — File System Operations and Filename Handling
-- [ ] 03-02-PLAN.md — Metadata Formatting and CLI Integration
+- [x] 03-02-PLAN.md — Metadata Formatting and CLI Integration
 
 ---
 

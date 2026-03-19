@@ -16,7 +16,7 @@ key_files:
 decisions:
   - "30-second request timeout for API calls"
   - "Separate error categorization: skipped vs failed"
-  - "Enhanced progress reporting with time estimates"
+  - "Enhanced progress reporting"
   - "Never crash on individual article failures"
 metrics:
   duration: "12 min"
@@ -34,15 +34,14 @@ metrics:
 
 | Task | Name | Commit | Files |
 |------|------|--------|-------|
-| 1 | implement rate limiting with 10-second delays | 09ff77e | cli.js |
+| 1 | implement rate limiting with 5-second delays | 09ff77e | cli.js |
 | 2 | add comprehensive API error handling | 5f6f1b8 | cli.js |  
 | 3 | enhance progress reporting and final summary | 64fe5ae | cli.js |
 
 ## Implementation Details
 
 ### Enhanced Rate Limiting
-- User-visible countdown messages: "Waiting 10 seconds before next request..."
-- Time estimation showing remaining articles and estimated completion time
+- User-visible countdown messages: "Waiting 5 seconds before next request..."
 - Smart delays: only after successful API requests, not after validation failures
 - No delay after the last article to avoid unnecessary waiting
 
@@ -56,12 +55,9 @@ metrics:
 
 ### Enhanced Progress Reporting
 - **Detailed progress**: Shows current article URL being processed
-- **Real-time status**: "Success: X characters extracted" or specific error messages  
-- **Time estimation**: Shows remaining articles and estimated completion time during delays
+- **Real-time status**: Success or specific error messages  
 - **Comprehensive final summary**:
-  - Total processing time in minutes
   - Categorized results: successful/skipped/failed with descriptions
-  - Average time per article calculation  
   - Visual success indicators with emojis
   - Clear readiness message for Phase 3
 
@@ -73,14 +69,14 @@ metrics:
 ## Verification Results
 
 All success criteria met:
-- ✅ 10-second delays between API requests with visible countdown
-- ✅ Rate limiting messages show time estimates for remaining work
+- ✅ 5-second delays between API requests with visible countdown
+
 - ✅ Network errors handled gracefully without application crashes
 - ✅ HTTP error codes (404, 500, 503) show user-friendly messages
 - ✅ 30-second timeout prevents hanging on slow requests
 - ✅ Final summary provides detailed breakdown of all result categories
 - ✅ Processing continues after any individual article failure
-- ✅ User sees estimated remaining time during processing
+
 
 ## Deviations from Plan
 
@@ -90,10 +86,10 @@ None - plan executed exactly as written.
 
 The CLI now provides:
 - **Robust error recovery**: Never crashes on individual failures
-- **Respectful API usage**: 10-second rate limiting with user feedback
+- **Respectful API usage**: 5-second rate limiting with user feedback
 - **Clear user communication**: Detailed progress and comprehensive error messages
 - **Production timeouts**: 30-second request limits prevent hanging
-- **Comprehensive reporting**: Success/failure breakdown with timing information
+- **Comprehensive reporting**: Success/failure breakdown
 
 ## Next Phase Integration
 
@@ -101,7 +97,7 @@ The enhanced API system provides:
 - **For Phase 3**: Reliable content extraction with detailed processing status
 - **Error resilience**: Graceful handling of network issues during batch processing
 - **User experience**: Clear feedback on processing progress and completion status
-- **Monitoring data**: Detailed metrics for processing success rates and timing
+- **Monitoring data**: Detailed metrics for processing success rates
 
 ## Self-Check: PASSED
 
@@ -116,5 +112,5 @@ The enhanced API system provides:
 **Functionality verified:**
 - Rate limiting working with user-visible countdown messages
 - Error handling prevents crashes and provides clear feedback
-- Progress reporting shows detailed status and timing information
+- Progress reporting shows detailed status
 - Final summary provides comprehensive breakdown of results

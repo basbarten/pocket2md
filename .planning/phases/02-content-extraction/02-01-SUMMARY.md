@@ -15,7 +15,7 @@ key_files:
   modified: [cli.js]
 decisions:
   - "defuddle.md API service for content extraction"
-  - "10-second rate limiting between API calls" 
+  - "5-second rate limiting between API calls" 
   - "URL validation before API requests"
   - "Continue processing after API failures"
 metrics:
@@ -61,7 +61,7 @@ metrics:
 - Enhanced article data structure with content and contentLength
 
 ### Rate Limiting & Error Handling
-- 10-second delay between API calls for respectful API usage
+- 5-second delay between API calls for respectful API usage
 - Network errors logged but don't crash the process
 - HTTP error responses logged with status codes
 - Invalid URLs skipped with warning messages

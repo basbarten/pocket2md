@@ -44,7 +44,7 @@ See detailed v1 requirements in `REQUIREMENTS.md`:
 - **Tech stack**: Node.js CLI, CommonJS/ES Modules (package.json specifies `"main": "cli.js"`)
 - **API service**: defuddle.md for content extraction (requires internet connection)
 - **File handling**: Single Pocket CSV input, flat markdown output directory
-- **Processing**: Sequential article processing with 10-second rate limiting
+- **Processing**: Sequential article processing with 5-second rate limiting
 
 ## Key Decisions
 

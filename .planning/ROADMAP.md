@@ -99,7 +99,11 @@ Plans:
 6. Articles that fail to fetch are logged but don't halt processing
 7. Sequential processing completes without memory errors for typical exports (<1000 articles)
 
-**Plans:** TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — Testing Infrastructure and Validation Framework
+- [ ] 04-02-PLAN.md — Manual Validation Execution and Compliance Reporting
 
 ---
 
@@ -110,7 +114,7 @@ Plans:
 | 1 - CLI and CSV Foundation | 2/2 | Complete | 2026-03-18 |
 | 2 - Content Extraction | 2/2 | Complete | 2026-03-19 |
 | 3 - Markdown Output | 2/2 | Complete | 2026-03-19 |
-| 4 - Testing and Validation | 0/X | Not started | - |
+| 4 - Testing and Validation | 0/2 | Planned | - |
 
 ---
 

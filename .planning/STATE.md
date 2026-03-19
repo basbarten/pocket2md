@@ -60,7 +60,7 @@ progress:
 | Sequential processing | Wed Mar 11 2026 | Simpler code, lower memory risk | Implementation straightforward for typical exports |
 | Flat output structure | Wed Mar 11 2026 | Minimal complexity, easy file discovery | Simple CLI, files in `./output/` |
 | defuddle.md API service | Wed Mar 18 2026 | External API for content extraction | Simplified dependencies, requires internet connection |
-| 10-second rate limiting | Wed Mar 18 2026 | Respectful API usage | Slower processing but sustainable |
+| 5-second rate limiting | Wed Mar 18 2026 | Respectful API usage | Faster processing while still sustainable |
 | CSV input only | Wed Mar 11 2026 | Pocket service closed, CSV valid | Single-file input simplicity |
 | Four-phase structure | Wed Mar 11 2026 | Covers CLI/CSV, API processing, output | Clear delivery boundaries |
 | Node.js built-in argument parsing | Wed Mar 18 2026 | No external dependencies needed for CLI | Simple, lightweight implementation |
@@ -73,14 +73,14 @@ progress:
 | Async/await for API integration | Wed Mar 18 2026 | Modern JavaScript pattern for API calls | Clean, readable asynchronous code |
 | 30-second request timeout | Wed Mar 18 2026 | Prevent hanging on slow API responses | Better user experience, predictable processing |
 | Separate error categorization | Wed Mar 18 2026 | Distinguish validation vs network failures | Clear reporting and debugging |
-| Enhanced progress reporting | Wed Mar 18 2026 | User feedback during long processing | Better user experience, time estimation |
+| Enhanced progress reporting | Wed Mar 18 2026 | User feedback during long processing | Better user experience |
 
 ### Tech Dependencies
 
 - **node.js**: Runtime environment
 - **HTTP client**: For defuddle.md API calls (built-in fetch or axios)
 - **PapaParse**: CSV parsing (confirmed needed)
-- **Rate limiting**: 10 second delays between API calls
+- **Rate limiting**: 5 second delays between API calls
 
 ### Project Structure
 
@@ -106,7 +106,7 @@ pocket2md/
 - No configuration file support in v1
 - No retry logic or resume functionality in v1
 - defuddle.md API service for content extraction
-- Rate limiting: 10 second delay between API calls
+- Rate limiting: 5 second delay between API calls
 - Requires internet connection for processing
 
 ---
@@ -132,6 +132,16 @@ pocket2md/
 - Proceed to Phase 3 (Markdown Output)
 - Robust content extraction system established
 - Ready for markdown file generation with reliable article content
+
+### Pending Todos
+
+1. **Remove frontmatter extraction from HTML output of defuddle API** (api)
+   - Created: 2026-03-19
+   - Files: cli.js:385-403
+
+2. **Add a way of logging the error scenario's from defuddle to the stdwarn/stdout of our cli tool** (api)
+   - Created: 2026-03-19
+   - Files: cli.js:358-377, cli.js:331-347
 
 ---
 

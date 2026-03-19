@@ -21,19 +21,19 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### HTML Fetching and Cleaning
 
-- [ ] **FETCH-01**: CLI fetches HTML from each article URL sequentially
-- [ ] **FETCH-02**: CLI handles HTTP errors (404, 500, timeouts) and skips Article
-- [ ] **FETCH-03**: Cli validates URLs before fetching (basic URL format check)
-- [ ] **API-01**: CLI sends article URLs to defuddle.md API service (`curl defuddle.md/<<url>>`)
-- [ ] **API-02**: CLI handles API errors (network failures, service unavailable) and skips article
-- [ ] **API-03**: CLI implements rate limiting (5 second delay between API calls)
-- [ ] **API-04**: CLI processes API response to extract cleaned markdown content
+- [x] **FETCH-01**: CLI fetches HTML from each article URL sequentially
+- [x] **FETCH-02**: CLI handles HTTP errors (404, 500, timeouts) and skips Article
+- [x] **FETCH-03**: Cli validates URLs before fetching (basic URL format check)
+- [x] **API-01**: CLI sends article URLs to defuddle.md API service (`curl defuddle.md/<<url>>`)
+- [x] **API-02**: CLI handles API errors (network failures, service unavailable) and skips article
+- [x] **API-03**: CLI implements rate limiting (5 second delay between API calls)
+- [x] **API-04**: CLI processes API response to extract cleaned markdown content
 
 ### Markdown Output
 
-- [ ] **MD-01**: CLI creates output directory (default: `./output/`)
-- [ ] **MD-02**: CLI saves markdown files with sanitized article title as filename
-- [ ] **MD-03**: CLI handles filename conflicts (append number if title exists)
+- [x] **MD-01**: CLI creates output directory (default: `./output/`)
+- [x] **MD-02**: CLI saves markdown files with sanitized article title as filename
+- [x] **MD-03**: CLI handles filename conflicts (append number if title exists)
 - [x] **MD-04**: CLI includes basic metadata in markdown file (title, URL, date fetched)
 
 ## v2 Requirements
@@ -82,16 +82,16 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CSV-01 | Phase 1 | Complete |
 | CSV-02 | Phase 1 | Complete |
 | CSV-03 | Phase 1 | Complete |
-| FETCH-01 | Phase 2 | Pending |
-| FETCH-02 | Phase 2 | Pending |
-| FETCH-03 | Phase 2 | Pending |
-| API-01 | Phase 2 | Pending |
-| API-02 | Phase 2 | Pending |
-| API-03 | Phase 2 | Pending |
-| API-04 | Phase 2 | Pending |
-| MD-01 | Phase 3 | Pending |
-| MD-02 | Phase 3 | Pending |
-| MD-03 | Phase 3 | Pending |
+| FETCH-01 | Phase 2 | Complete |
+| FETCH-02 | Phase 2 | Complete |
+| FETCH-03 | Phase 2 | Complete |
+| API-01 | Phase 2 | Complete |
+| API-02 | Phase 2 | Complete |
+| API-03 | Phase 2 | Complete |
+| API-04 | Phase 2 | Complete |
+| MD-01 | Phase 3 | Complete |
+| MD-02 | Phase 3 | Complete |
+| MD-03 | Phase 3 | Complete |
 | MD-04 | Phase 3 | Complete |
 
 **Coverage:**
@@ -104,4 +104,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 ---
 
 *Requirements defined: Wed Mar 11 2026*
-*Last updated: Wed Mar 11 2026 after initial setup*
+*Last updated: Thu Mar 19 2026 - synced with completed phases 1-3*

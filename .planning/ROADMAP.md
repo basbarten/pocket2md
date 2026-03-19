@@ -10,8 +10,8 @@
 ## Phases
 
 - [x] **Phase 1: CLI and CSV Foundation** - Setup CLI for Pocket export processing
-- [ ] **Phase 2: Content Extraction** - Fetch and clean articles from web
-- [ ] **Phase 3: Markdown Output** - Save cleaned HTML as markdown files
+- [x] **Phase 2: Content Extraction** - Fetch and clean articles from web
+- [x] **Phase 3: Markdown Output** - Save cleaned HTML as markdown files
 - [ ] **Phase 4: Testing and Validation** - Verify all requirements work end-to-end
 
 ---
@@ -107,10 +107,10 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1 - CLI and CSV Foundation | 0/4 | Not started | - |
-| 2 - Content Extraction | 0/6 | Not started | - |
-| 3 - Markdown Output | 0/4 | Not started | - |
-| 4 - Testing and Validation | 0/7 | Not started | - |
+| 1 - CLI and CSV Foundation | 2/2 | Complete | 2026-03-18 |
+| 2 - Content Extraction | 2/2 | Complete | 2026-03-19 |
+| 3 - Markdown Output | 2/2 | Complete | 2026-03-19 |
+| 4 - Testing and Validation | 0/X | Not started | - |
 
 ---
 
@@ -118,23 +118,23 @@ Plans:
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CLI-01 | Phase 1 | Pending |
-| CLI-02 | Phase 1 | Pending |
-| CLI-03 | Phase 1 | Pending |
-| CSV-01 | Phase 1 | Pending |
-| CSV-02 | Phase 1 | Pending |
-| CSV-03 | Phase 1 | Pending |
-| FETCH-01 | Phase 2 | Pending |
-| FETCH-02 | Phase 2 | Pending |
-| FETCH-03 | Phase 2 | Pending |
-| API-01 | Phase 2 | Pending |
-| API-02 | Phase 2 | Pending |
-| API-03 | Phase 2 | Pending |
-| API-04 | Phase 2 | Pending |
-| MD-01 | Phase 3 | Pending |
-| MD-02 | Phase 3 | Pending |
-| MD-03 | Phase 3 | Pending |
-| MD-04 | Phase 3 | Pending |
+| CLI-01 | Phase 1 | Complete |
+| CLI-02 | Phase 1 | Complete |
+| CLI-03 | Phase 1 | Complete |
+| CSV-01 | Phase 1 | Complete |
+| CSV-02 | Phase 1 | Complete |
+| CSV-03 | Phase 1 | Complete |
+| FETCH-01 | Phase 2 | Complete |
+| FETCH-02 | Phase 2 | Complete |
+| FETCH-03 | Phase 2 | Complete |
+| API-01 | Phase 2 | Complete |
+| API-02 | Phase 2 | Complete |
+| API-03 | Phase 2 | Complete |
+| API-04 | Phase 2 | Complete |
+| MD-01 | Phase 3 | Complete |
+| MD-02 | Phase 3 | Complete |
+| MD-03 | Phase 3 | Complete |
+| MD-04 | Phase 3 | Complete |
 
 ---
 
@@ -156,4 +156,4 @@ Plans:
 
 ---
 
-*Last updated: Wed Mar 11 2026*
+*Last updated: Thu Mar 19 2026 - synced with completed phases 1-3*

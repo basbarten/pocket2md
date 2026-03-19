@@ -51,14 +51,14 @@ Plans:
 2. CLI validates URLs before sending to API service
 3. CLI gracefully skips articles with network/API errors without crashing
 4. CLI sends article URLs to defuddle.md API service (`curl defuddle.md/<<url>>`)
-5. CLI implements 10-second rate limiting between API calls
+5. CLI implements 5-second rate limiting between API calls
 6. CLI processes API responses to extract cleaned markdown content
 
 **Plans:** 2 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — URL Validation and API Integration
-- [ ] 02-02-PLAN.md — Rate Limiting and Error Handling
+- [x] 02-01-PLAN.md — URL Validation and API Integration
+- [x] 02-02-PLAN.md — Rate Limiting and Error Handling
 
 ---
 
@@ -78,7 +78,7 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — File System Operations and Filename Handling
+- [x] 03-01-PLAN.md — File System Operations and Filename Handling
 - [ ] 03-02-PLAN.md — Metadata Formatting and CLI Integration
 
 ---

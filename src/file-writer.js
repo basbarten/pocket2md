@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { sanitizeFilename, resolveConflicts } = require('./filename-utils');
+const { createMetadata, formatFrontmatter } = require('./metadata');
 
 /**
  * Writes an article to a markdown file with directory creation and conflict resolution
@@ -8,9 +9,11 @@ const { sanitizeFilename, resolveConflicts } = require('./filename-utils');
  * @param {string} params.title - Article title
  * @param {string} params.content - Article markdown content
  * @param {string} params.outputDir - Output directory path
+ * @param {string} [params.url] - Optional article URL for metadata
+ * @param {string|number} [params.timestamp] - Optional timestamp for metadata
  * @returns {Object} - Result object {success: boolean, filepath: string|null, error: string|null}
  */
-function writeArticleFile({ title, content, outputDir } = {}) {
+function writeArticleFile({ title, content, outputDir, url, timestamp } = {}) {
   // Validate required parameters
   if (!title && title !== '' || !content || !outputDir) {
     return {
@@ -34,8 +37,15 @@ function writeArticleFile({ title, content, outputDir } = {}) {
     const uniqueFilename = resolveConflicts(outputDir, filename);
     const filepath = path.join(outputDir, uniqueFilename);
 
+    // Prepare content - add metadata frontmatter if url/timestamp provided
+    let finalContent = content;
+    if (url || timestamp) {
+      const metadata = createMetadata({ title, url, timestamp });
+      finalContent = formatFrontmatter(metadata, content);
+    }
+
     // Write the file
-    fs.writeFileSync(filepath, content, 'utf8');
+    fs.writeFileSync(filepath, finalContent, 'utf8');
 
     return {
       success: true,

@@ -41,6 +41,56 @@ describe('writeArticleFile', () => {
     expect(content).toBe('# Article Content');
   });
 
+  test('writes complete markdown with YAML frontmatter when metadata provided', () => {
+    const result = writeArticleFile({
+      title: 'Test Article',
+      content: '# Article Content\n\nThis is the body.',
+      url: 'https://example.com/article',
+      timestamp: '2026-03-19T14:19:00Z',
+      outputDir: tempDir
+    });
+    
+    expect(result.success).toBe(true);
+    expect(result.filepath).toBe(path.join(tempDir, 'Test-Article.md'));
+    
+    const writtenContent = fs.readFileSync(result.filepath, 'utf8');
+    expect(writtenContent).toContain('---\n');
+    expect(writtenContent).toContain('title: Test Article\n');
+    expect(writtenContent).toContain('url: "https://example.com/article"\n');
+    expect(writtenContent).toContain('date: 2026-03-19T14:19:00Z\n');
+    expect(writtenContent).toContain('---\n');
+    expect(writtenContent).toContain('# Article Content\n\nThis is the body.');
+  });
+
+  test('maintains backward compatibility without metadata', () => {
+    const result = writeArticleFile({
+      title: 'Legacy Article',
+      content: '# Legacy Content',
+      outputDir: tempDir
+    });
+    
+    expect(result.success).toBe(true);
+    const content = fs.readFileSync(result.filepath, 'utf8');
+    expect(content).toBe('# Legacy Content');
+    expect(content).not.toContain('---');
+  });
+
+  test('handles metadata with special characters', () => {
+    const result = writeArticleFile({
+      title: 'Article with "quotes" and: special chars',
+      content: '# Content here',
+      url: 'https://example.com/test?param=value&other=true',
+      timestamp: '2026-03-19T14:19:00Z',
+      outputDir: tempDir
+    });
+    
+    expect(result.success).toBe(true);
+    
+    const writtenContent = fs.readFileSync(result.filepath, 'utf8');
+    expect(writtenContent).toContain('title: "Article with \\"quotes\\" and: special chars"');
+    expect(writtenContent).toContain('url: "https://example.com/test?param=value&other=true"');
+  });
+
   test('handles duplicate titles with conflict resolution', () => {
     // First article
     const result1 = writeArticleFile({

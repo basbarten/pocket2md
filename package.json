@@ -12,7 +12,8 @@
   "author": "Bas Barten",
   "license": "ISC",
   "dependencies": {
-    "papaparse": "^5.5.3"
+    "papaparse": "^5.5.3",
+    "sanitize-filename": "^1.6.3"
   },
   "devDependencies": {
     "jest": "^30.3.0"

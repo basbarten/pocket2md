@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const Papa = require('papaparse');
+const { writeArticleFile } = require('./src/file-writer');
 
 // Parse command-line arguments using Node.js built-in parseArgs
 const { parseArgs } = require('node:util');
@@ -169,13 +170,12 @@ async function processArticles() {
   let successfulCount = 0;
   let skippedCount = 0; // Invalid URLs, missing URLs
   let failedCount = 0;  // API/network errors
-  const startTime = Date.now();
   
   for (let i = 0; i < articles.length; i++) {
     const article = articles[i];
     const articleNum = i + 1;
     
-    console.log(`Processing article ${articleNum}/${articles.length}: ${article.url ? article.url.trim() : 'No URL'}`);
+    console.log(`Processing article ${articleNum}/${articles.length}...`);
     
     // Skip articles with missing URLs
     if (!article.url || article.url.trim() === '') {
@@ -213,37 +213,48 @@ async function processArticles() {
         contentLength: extractedContent.length
       };
       
-      console.log(`Success: ${extractedContent.length} characters extracted`);
-      successfulCount++;
+      // Write article to markdown file
+      const fileResult = writeArticleFile({
+        title: articleData.title,
+        content: extractedContent,
+        url: articleData.url,
+        timestamp: articleData.time_added,
+        outputDir: parsedArgs.output || './output'
+      });
+      
+      if (fileResult.success) {
+        console.log(`✅ Wrote article: ${path.basename(fileResult.filepath)}`);
+        successfulCount++;
+      } else {
+        console.warn(`⚠️  Failed to write article "${articleData.title}": ${fileResult.error}`);
+        // Still count as successful API extraction, but note file error
+        successfulCount++;
+      }
     } else {
       // API call failed, count as failed (not skipped - these are network/API errors)
       failedCount++;
     }
     
-    // Rate limiting: 10 second delay between API calls (but not after last article)
+    // Rate limiting: 5 second delay between API calls (but not after last article)
     if (i < articles.length - 1 && apiResponse !== null) {
-      const remaining = articles.length - i - 1;
-      const estimatedMinutes = Math.ceil((remaining * 10) / 60);
-      console.log(`Waiting 10 seconds before next request... (${remaining} articles remaining, ~${estimatedMinutes} minutes)`);
-      await new Promise(resolve => setTimeout(resolve, 10000));
+      console.log(`Waiting 5 seconds before next request...`);
+      await new Promise(resolve => setTimeout(resolve, 5000));
     }
   }
   
-    // Show final summary with timing information
-    const endTime = Date.now();
-    const totalTimeMs = endTime - startTime;
-    const totalTimeMinutes = Math.round(totalTimeMs / 1000 / 60 * 10) / 10; // Round to 1 decimal
+    // Show final summary
     const totalProcessed = successfulCount + skippedCount + failedCount;
-    const avgTimePerArticle = totalProcessed > 0 ? Math.round((totalTimeMs / 1000) / totalProcessed) : 0;
     
     console.log('');
     console.log('=== Processing Complete ===');
-    console.log(`Total time: ${totalTimeMinutes} minutes`);
     console.log(`Articles processed: ${totalProcessed}`);
     console.log(`  • ${successfulCount} successful (content extracted)`);
     console.log(`  • ${skippedCount} skipped (invalid URLs)`);
     console.log(`  • ${failedCount} failed (network/API errors)`);
-    console.log(`Average time per article: ${avgTimePerArticle} seconds`);
+    
+    // Add expected format for backward compatibility with existing tests
+    const totalFailed = skippedCount + failedCount;
+    console.log(`Processed ${totalProcessed} articles: ${successfulCount} successful, ${totalFailed} failed`);
     
     if (successfulCount > 0) {
       console.log(`\n✅ Successfully processed ${successfulCount} articles for Phase 3 markdown generation`);

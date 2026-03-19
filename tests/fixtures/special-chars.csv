@@ -1,0 +1,9 @@
+title,url,time_added,tags,status
+"Special ""Quotes"" & Chars",http://example.com/quotes?param="value"&other=test,1407757755,special chars,archive
+Ümlauts & Émojis 🚀,http://café.example.com/ümläuts-émojis,1407757755,unicode,archive
+"Chinese 中文 Test",http://中文.example.com/path,1407757755,chinese|unicode,archive
+"Japanese テスト",http://テスト.example.com/path,1407757755,japanese,archive
+"Symbols: !@#$%^&*()_+-=[]{}|;':"",./<>?",http://example.com/symbols,1407757755,symbols,archive
+"Line\nBreaks & Tabs\t",http://example.com/linebreaks,1407757755,formatting,archive
+"HTML <b>Tags</b> & &amp; Entities",http://example.com/html-tags,1407757755,html,archive
+"Very Long Title That Exceeds Normal Limits And Contains Many Words To Test How The System Handles Extremely Long Titles That Might Cause Issues",http://example.com/long-title,1407757755,long,archive

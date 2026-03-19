@@ -1,0 +1,21 @@
+title,url,time_added,tags,status
+GitHub Article,https://github.com/user/repo,1407757755,github,archive
+Medium Post,https://medium.com/@user/post,1407757756,medium,archive
+Dev.to Tutorial,https://dev.to/user/tutorial,1407757757,tutorial,archive
+Stack Overflow Question,https://stackoverflow.com/questions/12345678,1407757758,stackoverflow,archive
+YouTube Video,https://www.youtube.com/watch?v=dQw4w9WgXcQ,1407757759,video,archive
+Wikipedia Article,https://en.wikipedia.org/wiki/Test_Article,1407757760,wikipedia,archive
+Reddit Discussion,https://www.reddit.com/r/programming/comments/test,1407757761,reddit,archive
+Hacker News,https://news.ycombinator.com/item?id=12345678,1407757762,hackernews,archive
+AWS Documentation,https://docs.aws.amazon.com/service/guide,1407757763,aws|docs,archive
+MDN Web Docs,https://developer.mozilla.org/en-US/docs/Web,1407757764,mdn|docs,archive
+Google Developers,https://developers.google.com/web/tools,1407757765,google|tools,archive
+Microsoft Docs,https://docs.microsoft.com/en-us/dotnet,1407757766,microsoft|docs,archive
+Apache Project,https://httpd.apache.org/docs/,1407757767,apache,archive
+NPM Package,https://www.npmjs.com/package/express,1407757768,npm,archive
+Docker Hub,https://hub.docker.com/_/node,1407757769,docker,archive
+PyPI Package,https://pypi.org/project/requests/,1407757770,python|pypi,archive
+Ruby Gems,https://rubygems.org/gems/rails,1407757771,ruby|gems,archive
+Local Dev Server,http://localhost:3000/test,1407757772,localhost,archive
+IP Address,http://192.168.1.1/admin,1407757773,ip,archive
+Subdomain,https://api.subdomain.example.com/v1,1407757774,api,archive

@@ -16,6 +16,7 @@
     "sanitize-filename": "^1.6.3"
   },
   "devDependencies": {
-    "jest": "^30.3.0"
+    "jest": "^30.3.0",
+    "js-yaml": "^4.1.1"
   }
 }

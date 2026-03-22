@@ -75,6 +75,6 @@ describe('CLI Integration Tests', () => {
     // and includes file writing logic in the output messages
     const cliCode = fs.readFileSync(path.join(__dirname, '../cli.js'), 'utf8');
     expect(cliCode).toMatch(/console\.log.*[Ww]rote.*article/);
-    expect(cliCode).toMatch(/console\.warn.*[Ff]ailed.*write/);
+    expect(cliCode).toMatch(/console\.error.*[Ff]ailed.*write/);
   });
 });

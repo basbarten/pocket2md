@@ -113,7 +113,7 @@ async function processArticles() {
   
   // Check for empty CSV files
   if (csvContent.trim() === '') {
-    console.warn('Warning: CSV file is empty');
+    console.error('Warning: CSV file is empty');
     console.log('Processed 0 articles: 0 successful, 0 failed');
     return;
   }
@@ -139,8 +139,8 @@ async function processArticles() {
       process.exit(1);
     } else {
       // Non-critical errors - log but continue
-      console.warn('CSV parsing warnings:');
-      parseResult.errors.forEach(err => console.warn(`  Line ${err.row || 'unknown'}: ${err.message}`));
+      console.error('CSV parsing warnings:');
+      parseResult.errors.forEach(err => console.error(`  Line ${err.row || 'unknown'}: ${err.message}`));
     }
   }
   
@@ -179,14 +179,14 @@ async function processArticles() {
     
     // Skip articles with missing URLs
     if (!article.url || article.url.trim() === '') {
-      console.warn(`Warning: Skipping article ${articleNum} - missing URL`);
+      console.error(`Warning: Skipping article ${articleNum} - missing URL`);
       skippedCount++;
       continue;
     }
     
     // Validate URL format before processing
     if (!validateUrl(article.url)) {
-      console.warn(`Warning: Skipping article ${articleNum} - invalid URL format: ${article.url.trim()}`);
+      console.error(`Warning: Skipping article ${articleNum} - invalid URL format: ${article.url.trim()}`);
       skippedCount++;
       continue;
     }
@@ -200,11 +200,11 @@ async function processArticles() {
     };
     
     // Fetch article content from defuddle.md API
-    const apiResponse = await fetchArticleContent(articleData.url);
+    const apiResponse = await fetchArticleContent(articleData.url, articleData.title);
     
-    if (apiResponse) {
+    if (apiResponse.content) {
       // Process API response and extract markdown content
-      const extractedContent = processApiResponse(apiResponse);
+      const extractedContent = processApiResponse(apiResponse.content);
       
       // Store the processed article data with content for later use
       const processedArticle = {
@@ -226,7 +226,7 @@ async function processArticles() {
         console.log(`✅ Wrote article: ${path.basename(fileResult.filepath)}`);
         successfulCount++;
       } else {
-        console.warn(`⚠️  Failed to write article "${articleData.title}": ${fileResult.error}`);
+        console.error(`⚠️  Failed to write article "${articleData.title}": ${fileResult.error}`);
         // Still count as successful API extraction, but note file error
         successfulCount++;
       }
@@ -236,7 +236,7 @@ async function processArticles() {
     }
     
     // Rate limiting: 5 second delay between API calls (but not after last article)
-    if (i < articles.length - 1 && apiResponse !== null) {
+    if (i < articles.length - 1 && apiResponse.content !== null) {
       console.log(`Waiting 5 seconds before next request...`);
       await new Promise(resolve => setTimeout(resolve, 5000));
     }
@@ -327,9 +327,10 @@ function validateUrl(url) {
 /**
  * Fetches article content from defuddle.md API
  * @param {string} url - The article URL to fetch
- * @returns {Promise<string|null>} - Markdown content or null on error
+ * @param {string} title - The article title for error messages
+ * @returns {Promise<{content: string|null, error: string|null}>} - Object with content and error
  */
-async function fetchArticleContent(url) {
+async function fetchArticleContent(url, title = 'Untitled') {
   try {
     const encodedUrl = encodeURIComponent(url);
     const apiUrl = `https://defuddle.md/${encodedUrl}`;
@@ -350,37 +351,42 @@ async function fetchArticleContent(url) {
     clearTimeout(timeoutId);
     
     if (!response.ok) {
-      let errorMessage = `${response.status} ${response.statusText}`;
+      let errorMessage;
       if (response.status === 404) {
-        errorMessage = 'Content not found';
+        errorMessage = 'Content not found (404)';
+      } else if (response.status === 429) {
+        errorMessage = 'Rate limited (429)';
       } else if (response.status === 500) {
-        errorMessage = 'Server error';
+        errorMessage = 'Server error (500)';
       } else if (response.status === 503) {
-        errorMessage = 'Service unavailable';
+        errorMessage = 'Service unavailable (503)';
       } else if (response.status >= 400 && response.status < 500) {
-        errorMessage = 'Client error';
+        errorMessage = `Client error (${response.status})`;
       } else if (response.status >= 500) {
-        errorMessage = 'Server error';
+        errorMessage = `Server error (${response.status})`;
+      } else {
+        errorMessage = `HTTP ${response.status}`;
       }
       
-      console.warn(`Warning: Failed to fetch ${url} - ${errorMessage}`);
-      return null;
+      console.error(`Failed to fetch "${title}" (${url}) - ${errorMessage}`);
+      return { content: null, error: errorMessage };
     }
     
     const content = await response.text();
     
     // Validate response content
     if (!content || content.trim() === '') {
-      console.warn(`Warning: Failed to fetch ${url} - Empty response`);
-      return null;
+      const errorMessage = 'Empty response';
+      console.error(`Failed to fetch "${title}" (${url}) - ${errorMessage}`);
+      return { content: null, error: errorMessage };
     }
     
-    return content;
+    return { content: content, error: null };
   } catch (error) {
-    let errorMessage = 'Unknown error';
+    let errorMessage;
     
     if (error.name === 'AbortError') {
-      errorMessage = 'Request timeout (30s)';
+      errorMessage = 'Timeout (30s)';
     } else if (error.code === 'ENOTFOUND') {
       errorMessage = 'DNS resolution failed';
     } else if (error.code === 'ECONNREFUSED') {
@@ -389,12 +395,18 @@ async function fetchArticleContent(url) {
       errorMessage = 'Connection reset';
     } else if (error.code === 'ETIMEDOUT') {
       errorMessage = 'Connection timeout';
+    } else if (error.message && error.message.toLowerCase().includes('certificate')) {
+      errorMessage = 'SSL certificate error';
+    } else if (error.message && error.message.toLowerCase().includes('redirect')) {
+      errorMessage = 'Too many redirects';
     } else if (error.message) {
       errorMessage = error.message;
+    } else {
+      errorMessage = 'Unknown network error';
     }
     
-    console.warn(`Warning: Failed to fetch ${url} - ${errorMessage}`);
-    return null;
+    console.error(`Failed to fetch "${title}" (${url}) - ${errorMessage}`);
+    return { content: null, error: errorMessage };
   }
 }
 

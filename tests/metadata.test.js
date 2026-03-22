@@ -1,4 +1,4 @@
-const { createMetadata, formatFrontmatter } = require('../src/metadata');
+const { createMetadata, formatFrontmatter, parseDefuddleFrontmatter } = require('../src/metadata');
 
 describe('metadata module', () => {
   describe('createMetadata', () => {
@@ -114,6 +114,107 @@ describe('metadata module', () => {
       expect(parsed.title).toBe(metadata.title);
       expect(parsed.url).toBe(metadata.url);
       expect(parsed.date).toEqual(new Date(metadata.date));
+    });
+  });
+
+  describe('parseDefuddleFrontmatter', () => {
+    it('should extract YAML frontmatter and content from defuddle response', () => {
+      const apiResponse = `---
+title: "Test Article"
+author: "John Doe"
+published_date: "2024-03-15"
+site_name: "Example Site"
+---
+# Article Content
+
+This is the article body.`;
+
+      const result = parseDefuddleFrontmatter(apiResponse);
+
+      expect(result.frontmatter).toEqual({
+        title: 'Test Article',
+        author: 'John Doe',
+        published_date: '2024-03-15',
+        site_name: 'Example Site'
+      });
+      expect(result.content).toBe('# Article Content\n\nThis is the article body.');
+    });
+
+    it('should handle malformed YAML gracefully without throwing', () => {
+      const apiResponse = `---
+title: "Test Article
+author: [unclosed array
+invalid: yaml: structure
+---
+# Article Content`;
+
+      const result = parseDefuddleFrontmatter(apiResponse);
+
+      expect(result.frontmatter).toBeNull();
+      expect(result.content).toBe(apiResponse);
+    });
+
+    it('should handle missing frontmatter', () => {
+      const apiResponse = `# Article Content
+
+This article has no frontmatter.`;
+
+      const result = parseDefuddleFrontmatter(apiResponse);
+
+      expect(result.frontmatter).toBeNull();
+      expect(result.content).toBe(apiResponse);
+    });
+
+    it('should handle empty response', () => {
+      const apiResponse = '';
+
+      const result = parseDefuddleFrontmatter(apiResponse);
+
+      expect(result.frontmatter).toBeNull();
+      expect(result.content).toBe('');
+    });
+
+    it('should handle response with only opening frontmatter delimiter', () => {
+      const apiResponse = `---
+title: "Test Article"
+author: "John Doe"`;
+
+      const result = parseDefuddleFrontmatter(apiResponse);
+
+      expect(result.frontmatter).toBeNull();
+      expect(result.content).toBe(apiResponse);
+    });
+
+    it('should handle response with frontmatter containing triple dashes in content', () => {
+      const apiResponse = `---
+title: "Test Article"
+---
+# Content
+
+Some text with --- in it.`;
+
+      const result = parseDefuddleFrontmatter(apiResponse);
+
+      expect(result.frontmatter).toEqual({
+        title: 'Test Article'
+      });
+      expect(result.content).toBe('# Content\n\nSome text with --- in it.');
+    });
+
+    it('should trim content after extracting frontmatter', () => {
+      const apiResponse = `---
+title: "Test Article"
+---
+
+  
+# Content with leading whitespace`;
+
+      const result = parseDefuddleFrontmatter(apiResponse);
+
+      expect(result.frontmatter).toEqual({
+        title: 'Test Article'
+      });
+      expect(result.content).toBe('# Content with leading whitespace');
     });
   });
 });

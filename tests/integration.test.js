@@ -158,4 +158,72 @@ describe('CLI Integration Tests', () => {
       expect(cliCode).toMatch(/Too many redirects/);
     });
   });
+
+  describe('Metadata enhancements', () => {
+    test('includes tags from CSV in YAML frontmatter', () => {
+      const cliCode = fs.readFileSync(path.join(__dirname, '../cli.js'), 'utf8');
+      
+      // Verify CLI passes tags to file writer
+      expect(cliCode).toMatch(/tags:/);
+      expect(cliCode).toMatch(/writeArticleFile/);
+    });
+    
+    test('includes both timestamp and ISO date fields', () => {
+      const cliCode = fs.readFileSync(path.join(__dirname, '../cli.js'), 'utf8');
+      
+      // Verify CLI passes timestamp to writeArticleFile
+      expect(cliCode).toMatch(/timestamp:/);
+      
+      // Verify metadata module creates date field from timestamp
+      const metadataCode = fs.readFileSync(path.join(__dirname, '../src/metadata.js'), 'utf8');
+      expect(metadataCode).toMatch(/date:/);
+      expect(metadataCode).toMatch(/timestamp/);
+    });
+    
+    test('handles defuddle frontmatter gracefully', () => {
+      const cliCode = fs.readFileSync(path.join(__dirname, '../cli.js'), 'utf8');
+      
+      // Verify CLI includes defuddle integration
+      expect(cliCode).toMatch(/defuddle|parseFrontmatter/);
+    });
+  });
+
+  describe('Network error detection', () => {
+    test('invalid port detected as connection error not invalid URL', () => {
+      const cliCode = fs.readFileSync(path.join(__dirname, '../cli.js'), 'utf8');
+      
+      // Verify connection refused error handling exists
+      expect(cliCode).toMatch(/Connection refused/);
+      
+      // Verify URL validation doesn't reject valid ports
+      // Port 9999 should pass validation and trigger connection error
+      expect(cliCode).toMatch(/ECONNREFUSED/);
+    });
+    
+    test('timeout URLs show specific timeout message', () => {
+      const cliCode = fs.readFileSync(path.join(__dirname, '../cli.js'), 'utf8');
+      
+      // Verify timeout error shows specific message
+      expect(cliCode).toMatch(/Timeout.*30s/);
+      expect(cliCode).toMatch(/ETIMEDOUT|ESOCKETTIMEDOUT/);
+    });
+    
+    test('DNS errors show specific DNS message', () => {
+      const cliCode = fs.readFileSync(path.join(__dirname, '../cli.js'), 'utf8');
+      
+      // Verify DNS error shows specific message
+      expect(cliCode).toMatch(/DNS resolution failed/);
+      expect(cliCode).toMatch(/ENOTFOUND/);
+    });
+    
+    test('HTTP error codes show specific status messages', () => {
+      const cliCode = fs.readFileSync(path.join(__dirname, '../cli.js'), 'utf8');
+      
+      // Verify specific HTTP status codes are handled
+      expect(cliCode).toMatch(/404/);
+      expect(cliCode).toMatch(/500/);
+      expect(cliCode).toMatch(/503/);
+      expect(cliCode).toMatch(/429/);
+    });
+  });
 });

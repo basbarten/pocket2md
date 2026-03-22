@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { sanitizeFilename, resolveConflicts } = require('./filename-utils');
-const { createMetadata, formatFrontmatter } = require('./metadata');
+const { createMetadata, formatFrontmatter, mergeDefuddleMetadata } = require('./metadata');
 
 /**
  * Writes an article to a markdown file with directory creation and conflict resolution
@@ -11,9 +11,11 @@ const { createMetadata, formatFrontmatter } = require('./metadata');
  * @param {string} params.outputDir - Output directory path
  * @param {string} [params.url] - Optional article URL for metadata
  * @param {string|number} [params.timestamp] - Optional timestamp for metadata
+ * @param {Array<string>} [params.tags] - Optional array of tags
+ * @param {Object} [params.defuddleFrontmatter] - Optional defuddle frontmatter object
  * @returns {Object} - Result object {success: boolean, filepath: string|null, error: string|null}
  */
-function writeArticleFile({ title, content, outputDir, url, timestamp } = {}) {
+function writeArticleFile({ title, content, outputDir, url, timestamp, tags = [], defuddleFrontmatter = null } = {}) {
   // Validate required parameters
   if (!title && title !== '' || !content || !outputDir) {
     return {
@@ -40,7 +42,8 @@ function writeArticleFile({ title, content, outputDir, url, timestamp } = {}) {
     // Prepare content - add metadata frontmatter if url/timestamp provided
     let finalContent = content;
     if (url || timestamp) {
-      const metadata = createMetadata({ title, url, timestamp });
+      const pocketMetadata = createMetadata({ title, url, timestamp, tags });
+      const metadata = mergeDefuddleMetadata(defuddleFrontmatter, pocketMetadata);
       finalContent = formatFrontmatter(metadata, content);
     }
 

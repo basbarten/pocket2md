@@ -55,9 +55,11 @@ describe('writeArticleFile', () => {
     
     const writtenContent = fs.readFileSync(result.filepath, 'utf8');
     expect(writtenContent).toContain('---\n');
-    expect(writtenContent).toContain('title: Test Article\n');
+    expect(writtenContent).toContain('title: "Test Article"\n');
     expect(writtenContent).toContain('url: "https://example.com/article"\n');
     expect(writtenContent).toContain('date: 2026-03-19T14:19:00Z\n');
+    expect(writtenContent).toContain('timestamp: 2026-03-19T14:19:00Z\n');
+    expect(writtenContent).toContain('tags: []\n');
     expect(writtenContent).toContain('---\n');
     expect(writtenContent).toContain('# Article Content\n\nThis is the body.');
   });

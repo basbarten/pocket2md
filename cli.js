@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const Papa = require('papaparse');
 const { writeArticleFile } = require('./src/file-writer');
+const { parseDefuddleFrontmatter } = require('./src/metadata');
 
 // Parse command-line arguments using Node.js built-in parseArgs
 const { parseArgs } = require('node:util');
@@ -192,35 +193,45 @@ async function processArticles() {
       continue;
     }
     
-    // Extract article data
+    // Extract article data and parse tags
+    const tags = article.tags ? article.tags.split(',').map(t => t.trim()).filter(t => t) : [];
+    
     const articleData = {
       title: article.title || 'Untitled',
       url: article.url.trim(),
       time_added: article.time_added || '',
-      tags: article.tags || ''
+      tags: tags
     };
     
     // Fetch article content from defuddle.md API
     const apiResponse = await fetchArticleContent(articleData.url, articleData.title);
     
     if (apiResponse.content) {
-      // Process API response and extract markdown content
-      const extractedContent = processApiResponse(apiResponse.content);
+      // Parse defuddle frontmatter before extracting content
+      const { frontmatter, content } = parseDefuddleFrontmatter(apiResponse.content);
+      
+      // Log warning if YAML parsing failed
+      if (frontmatter === null && content !== apiResponse.content) {
+        console.error(`Warning: Malformed YAML in response from ${articleData.url}`);
+      }
       
       // Store the processed article data with content for later use
       const processedArticle = {
         ...articleData,
-        content: extractedContent,
-        contentLength: extractedContent.length
+        content: content,
+        contentLength: content.length,
+        defuddleFrontmatter: frontmatter
       };
       
-      // Write article to markdown file
+      // Write article to markdown file with enhanced metadata
       const fileResult = writeArticleFile({
         title: articleData.title,
-        content: extractedContent,
+        content: content,
         url: articleData.url,
         timestamp: articleData.time_added,
-        outputDir: parsedArgs.output || './output'
+        outputDir: parsedArgs.output || './output',
+        tags: articleData.tags,
+        defuddleFrontmatter: frontmatter
       });
       
       if (fileResult.success) {
@@ -434,31 +445,6 @@ async function fetchArticleContent(url, title = 'Untitled') {
     console.error(`Failed to fetch "${title}" (${url}) - ${errorMessage}`);
     return { content: null, error: errorMessage };
   }
-}
-
-/**
- * Process API response and extract markdown content
- * @param {string} apiResponse - Raw API response content
- * @returns {string} - Extracted markdown content
- */
-function processApiResponse(apiResponse) {
-  if (!apiResponse || typeof apiResponse !== 'string') {
-    return '';
-  }
-  
-  // Check if response has YAML frontmatter (starts with ---)
-  if (apiResponse.startsWith('---\n')) {
-    // Find the end of frontmatter
-    const frontmatterEnd = apiResponse.indexOf('\n---\n', 4);
-    if (frontmatterEnd !== -1) {
-      // Extract content after frontmatter
-      const content = apiResponse.substring(frontmatterEnd + 5).trim();
-      return content;
-    }
-  }
-  
-  // If no frontmatter found, return the full response
-  return apiResponse.trim();
 }
 
 function showVersion() {

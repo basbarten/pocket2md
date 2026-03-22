@@ -170,6 +170,7 @@ async function processArticles() {
   let successfulCount = 0;
   let skippedCount = 0; // Invalid URLs, missing URLs
   let failedCount = 0;  // API/network errors
+  const failedArticles = []; // Collect failed articles for error log
   
   for (let i = 0; i < articles.length; i++) {
     const article = articles[i];
@@ -233,6 +234,13 @@ async function processArticles() {
     } else {
       // API call failed, count as failed (not skipped - these are network/API errors)
       failedCount++;
+      failedArticles.push({
+        index: articleNum,
+        title: articleData.title,
+        url: articleData.url,
+        error: apiResponse.error || 'Unknown error',
+        timestamp: new Date().toISOString()
+      });
     }
     
     // Rate limiting: 5 second delay between API calls (but not after last article)
@@ -255,6 +263,24 @@ async function processArticles() {
     // Add expected format for backward compatibility with existing tests
     const totalFailed = skippedCount + failedCount;
     console.log(`Processed ${totalProcessed} articles: ${successfulCount} successful, ${totalFailed} failed`);
+    
+    // Write error log file if there were failures
+    if (failedArticles.length > 0) {
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
+      const errorLogPath = path.join(parsedArgs.output, `errors-${timestamp}.log`);
+      
+      const logContent = [
+        `Pocket2md Error Log - ${new Date().toISOString()}`,
+        `Total errors: ${failedArticles.length}`,
+        '',
+        ...failedArticles.map(article => 
+          `[${article.index}] "${article.title}" (${article.url}) - ${article.error}`
+        )
+      ].join('\n');
+      
+      fs.writeFileSync(errorLogPath, logContent, 'utf8');
+      console.error(`Error log written to: ${errorLogPath}`);
+    }
     
     if (successfulCount > 0) {
       console.log(`\n✅ Successfully processed ${successfulCount} articles for Phase 3 markdown generation`);

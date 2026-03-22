@@ -158,6 +158,30 @@ Plans:
 3. **Execute** as implementation progresses through each phase
 4. **Validate** completion with `/gsd-complete-phase N` to mark phases done
 
+### Phase 5: small enhancements and bug fixes
+
+**Goal:** Post-v1.0 refinements addressing missing metadata, improved error reporting, and test coverage gaps
+
+**Requirements**: None (post-v1.0 enhancements)
+
+**Depends on:** Phase 4
+
+**Success Criteria:**
+1. Markdown files include human-readable ISO dates alongside Unix timestamps
+2. Tags from Pocket CSV appear in YAML frontmatter arrays
+3. Defuddle frontmatter metadata preserved and merged with Pocket metadata
+4. Errors output to stderr, progress to stdout (Unix convention)
+5. Network errors show specific types (Timeout, DNS failed, Connection refused, etc.)
+6. Error log files created in output directory when errors occur
+7. Test coverage validates all enhancements and edge cases
+
+**Plans:** 3 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — Enhanced metadata with tags, ISO dates, and defuddle frontmatter merge
+- [ ] 05-02-PLAN.md — Structured error logging with stderr/stdout separation and error log files
+- [ ] 05-03-PLAN.md — Test coverage improvements with validated fixtures and comprehensive integration tests
+
 ---
 
-*Last updated: Thu Mar 19 2026 - synced with completed phases 1-3*
+*Last updated: Sat Mar 22 2026 - Phase 5 planned with 3 plans in 2 waves*

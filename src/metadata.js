@@ -1,3 +1,61 @@
+const yaml = require('js-yaml');
+
+/**
+ * Parses YAML frontmatter from defuddle API response
+ * @param {string} apiResponse - Raw API response content
+ * @returns {Object} - {frontmatter: Object|null, content: string}
+ */
+function parseDefuddleFrontmatter(apiResponse) {
+  if (!apiResponse || typeof apiResponse !== 'string') {
+    return {
+      frontmatter: null,
+      content: apiResponse || ''
+    };
+  }
+
+  // Check if response starts with YAML frontmatter delimiter
+  if (!apiResponse.startsWith('---\n')) {
+    return {
+      frontmatter: null,
+      content: apiResponse
+    };
+  }
+
+  // Find the closing delimiter (skip first 4 chars to avoid matching opening delimiter)
+  const frontmatterEnd = apiResponse.indexOf('\n---\n', 4);
+  
+  if (frontmatterEnd === -1) {
+    // No closing delimiter found
+    return {
+      frontmatter: null,
+      content: apiResponse
+    };
+  }
+
+  // Extract frontmatter block (between delimiters, excluding the --- lines)
+  const frontmatterBlock = apiResponse.substring(4, frontmatterEnd);
+  
+  // Parse YAML with error handling for malformed YAML
+  let frontmatter;
+  try {
+    frontmatter = yaml.load(frontmatterBlock);
+  } catch (error) {
+    // Malformed YAML - return null frontmatter and full response as content
+    return {
+      frontmatter: null,
+      content: apiResponse
+    };
+  }
+
+  // Extract content after frontmatter and trim
+  const content = apiResponse.substring(frontmatterEnd + 5).trim();
+
+  return {
+    frontmatter,
+    content
+  };
+}
+
 /**
  * Creates metadata object from article data
  * @param {Object} params - Parameters object
@@ -63,5 +121,6 @@ function formatFrontmatter(metadata, content) {
 
 module.exports = {
   createMetadata,
-  formatFrontmatter
+  formatFrontmatter,
+  parseDefuddleFrontmatter
 };

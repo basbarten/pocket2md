@@ -1,4 +1,4 @@
-const { createMetadata, formatFrontmatter, parseDefuddleFrontmatter } = require('../src/metadata');
+const { createMetadata, formatFrontmatter, parseDefuddleFrontmatter, mergeDefuddleMetadata } = require('../src/metadata');
 
 describe('metadata module', () => {
   describe('createMetadata', () => {
@@ -39,6 +39,44 @@ describe('metadata module', () => {
 
       const result = createMetadata(input);
 
+      expect(result.date).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/);
+    });
+
+    it('should include tags array when provided', () => {
+      const input = {
+        title: 'Test Article',
+        url: 'https://example.com/test',
+        timestamp: '2026-03-19T14:19:00Z',
+        tags: ['programming', 'javascript', 'tutorial']
+      };
+
+      const result = createMetadata(input);
+
+      expect(result.tags).toEqual(['programming', 'javascript', 'tutorial']);
+    });
+
+    it('should default to empty tags array when not provided', () => {
+      const input = {
+        title: 'Test Article',
+        url: 'https://example.com/test',
+        timestamp: '2026-03-19T14:19:00Z'
+      };
+
+      const result = createMetadata(input);
+
+      expect(result.tags).toEqual([]);
+    });
+
+    it('should preserve Unix timestamp alongside ISO date', () => {
+      const input = {
+        title: 'Test Article',
+        url: 'https://example.com/test',
+        timestamp: 1773929978000
+      };
+
+      const result = createMetadata(input);
+
+      expect(result.timestamp).toBe(1773929978000);
       expect(result.date).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/);
     });
   });
@@ -114,6 +152,67 @@ describe('metadata module', () => {
       expect(parsed.title).toBe(metadata.title);
       expect(parsed.url).toBe(metadata.url);
       expect(parsed.date).toEqual(new Date(metadata.date));
+    });
+
+    it('should include tags field in YAML output', () => {
+      const metadata = {
+        title: 'Test Article',
+        url: 'https://example.com/test',
+        date: '2026-03-19T14:19:00Z',
+        timestamp: 1773929978000,
+        tags: ['programming', 'javascript', 'tutorial']
+      };
+      const content = 'Article content.';
+
+      const result = formatFrontmatter(metadata, content);
+
+      expect(result).toContain('tags: [programming, javascript, tutorial]\n');
+    });
+
+    it('should handle empty tags array', () => {
+      const metadata = {
+        title: 'Test Article',
+        url: 'https://example.com/test',
+        date: '2026-03-19T14:19:00Z',
+        timestamp: 1773929978000,
+        tags: []
+      };
+      const content = 'Article content.';
+
+      const result = formatFrontmatter(metadata, content);
+
+      expect(result).toContain('tags: []\n');
+    });
+
+    it('should include timestamp field in YAML output', () => {
+      const metadata = {
+        title: 'Test Article',
+        url: 'https://example.com/test',
+        date: '2026-03-19T14:19:00Z',
+        timestamp: 1773929978000,
+        tags: []
+      };
+      const content = 'Article content.';
+
+      const result = formatFrontmatter(metadata, content);
+
+      expect(result).toContain('timestamp: 1773929978000\n');
+    });
+
+    it('should quote tags with special characters', () => {
+      const metadata = {
+        title: 'Test Article',
+        url: 'https://example.com/test',
+        date: '2026-03-19T14:19:00Z',
+        timestamp: 1773929978000,
+        tags: ['tag-with-dash', 'tag:with:colon', 'tag with spaces']
+      };
+      const content = 'Article content.';
+
+      const result = formatFrontmatter(metadata, content);
+
+      // Tags with special chars should be quoted
+      expect(result).toContain('tags: ["tag-with-dash", "tag:with:colon", "tag with spaces"]\n');
     });
   });
 
@@ -215,6 +314,76 @@ title: "Test Article"
         title: 'Test Article'
       });
       expect(result.content).toBe('# Content with leading whitespace');
+    });
+  });
+
+  describe('mergeDefuddleMetadata', () => {
+    it('should combine defuddle frontmatter with Pocket metadata', () => {
+      const defuddleFrontmatter = {
+        title: 'Article Title from Defuddle',
+        author: 'John Doe',
+        published_date: '2024-03-15',
+        site_name: 'Example Site'
+      };
+      const pocketMetadata = {
+        title: 'Article Title from Pocket',
+        url: 'https://example.com/article',
+        date: '2026-03-19T14:19:00Z',
+        timestamp: 1773929978000,
+        tags: ['programming', 'javascript']
+      };
+
+      const result = mergeDefuddleMetadata(defuddleFrontmatter, pocketMetadata);
+
+      // Defuddle title takes precedence
+      expect(result.title).toBe('Article Title from Defuddle');
+      // Defuddle fields preserved
+      expect(result.author).toBe('John Doe');
+      expect(result.published_date).toBe('2024-03-15');
+      expect(result.site_name).toBe('Example Site');
+      // Pocket fields preserved
+      expect(result.url).toBe('https://example.com/article');
+      expect(result.date).toBe('2026-03-19T14:19:00Z');
+      expect(result.timestamp).toBe(1773929978000);
+      expect(result.tags).toEqual(['programming', 'javascript']);
+    });
+
+    it('should handle null defuddle frontmatter', () => {
+      const defuddleFrontmatter = null;
+      const pocketMetadata = {
+        title: 'Article Title from Pocket',
+        url: 'https://example.com/article',
+        date: '2026-03-19T14:19:00Z',
+        timestamp: 1773929978000,
+        tags: ['programming']
+      };
+
+      const result = mergeDefuddleMetadata(defuddleFrontmatter, pocketMetadata);
+
+      // Should return pocket metadata as-is
+      expect(result).toEqual(pocketMetadata);
+    });
+
+    it('should handle missing defuddle fields gracefully', () => {
+      const defuddleFrontmatter = {
+        title: 'Article Title from Defuddle'
+        // author, published_date, site_name missing
+      };
+      const pocketMetadata = {
+        title: 'Article Title from Pocket',
+        url: 'https://example.com/article',
+        date: '2026-03-19T14:19:00Z',
+        timestamp: 1773929978000,
+        tags: []
+      };
+
+      const result = mergeDefuddleMetadata(defuddleFrontmatter, pocketMetadata);
+
+      expect(result.title).toBe('Article Title from Defuddle');
+      expect(result.author).toBeUndefined();
+      expect(result.published_date).toBeUndefined();
+      expect(result.site_name).toBeUndefined();
+      expect(result.url).toBe('https://example.com/article');
     });
   });
 });

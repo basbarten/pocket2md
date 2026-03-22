@@ -77,4 +77,85 @@ describe('CLI Integration Tests', () => {
     expect(cliCode).toMatch(/console\.log.*[Ww]rote.*article/);
     expect(cliCode).toMatch(/console\.error.*[Ff]ailed.*write/);
   });
+
+  describe('Error Logging', () => {
+    test('CLI collects failed articles during processing', () => {
+      const cliCode = fs.readFileSync(path.join(__dirname, '../cli.js'), 'utf8');
+      
+      // Verify failedArticles array is created
+      expect(cliCode).toMatch(/const\s+failedArticles\s*=\s*\[\]/);
+      
+      // Verify failed articles are pushed to array
+      expect(cliCode).toMatch(/failedArticles\.push\s*\(/);
+      expect(cliCode).toMatch(/index:/);
+      expect(cliCode).toMatch(/title:/);
+      expect(cliCode).toMatch(/url:/);
+      expect(cliCode).toMatch(/error:/);
+    });
+
+    test('CLI creates error log file when failures occur', () => {
+      const cliCode = fs.readFileSync(path.join(__dirname, '../cli.js'), 'utf8');
+      
+      // Verify error log file creation is conditional
+      expect(cliCode).toMatch(/if\s*\(\s*failedArticles\.length\s*>\s*0\s*\)/);
+      
+      // Verify error log filename has timestamp
+      expect(cliCode).toMatch(/errors-.*\.log/);
+      
+      // Verify error log is written to output directory
+      expect(cliCode).toMatch(/path\.join\s*\(\s*parsedArgs\.output/);
+      
+      // Verify error log content is written
+      expect(cliCode).toMatch(/fs\.writeFileSync\s*\(\s*errorLogPath/);
+    });
+
+    test('CLI error log has correct format', () => {
+      const cliCode = fs.readFileSync(path.join(__dirname, '../cli.js'), 'utf8');
+      
+      // Verify log header includes title and timestamp
+      expect(cliCode).toMatch(/Pocket2md Error Log/);
+      expect(cliCode).toMatch(/Total errors:/);
+      
+      // Verify each error entry has index, title, url, and error
+      expect(cliCode).toMatch(/\[.*index.*\]/);
+      expect(cliCode).toMatch(/article\.title/);
+      expect(cliCode).toMatch(/article\.url/);
+      expect(cliCode).toMatch(/article\.error/);
+    });
+
+    test('CLI notifies user when error log is created', () => {
+      const cliCode = fs.readFileSync(path.join(__dirname, '../cli.js'), 'utf8');
+      
+      // Verify stderr message about error log creation
+      expect(cliCode).toMatch(/console\.error.*Error log written to/);
+      expect(cliCode).toMatch(/errorLogPath/);
+    });
+
+    test('CLI uses stderr for error messages', () => {
+      const cliCode = fs.readFileSync(path.join(__dirname, '../cli.js'), 'utf8');
+      
+      // Verify errors go to stderr (console.error)
+      expect(cliCode).toMatch(/console\.error.*Failed to fetch/);
+      expect(cliCode).toMatch(/console\.error.*Skipping article/);
+      expect(cliCode).toMatch(/console\.error.*CSV file is empty/);
+    });
+
+    test('CLI shows specific error types in messages', () => {
+      const cliCode = fs.readFileSync(path.join(__dirname, '../cli.js'), 'utf8');
+      
+      // Verify specific HTTP error types
+      expect(cliCode).toMatch(/404/);
+      expect(cliCode).toMatch(/429/);
+      expect(cliCode).toMatch(/500/);
+      expect(cliCode).toMatch(/503/);
+      
+      // Verify specific network error types
+      expect(cliCode).toMatch(/Timeout/);
+      expect(cliCode).toMatch(/DNS resolution failed/);
+      expect(cliCode).toMatch(/Connection refused/);
+      expect(cliCode).toMatch(/Connection reset/);
+      expect(cliCode).toMatch(/SSL certificate error/);
+      expect(cliCode).toMatch(/Too many redirects/);
+    });
+  });
 });

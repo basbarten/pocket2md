@@ -39,6 +39,12 @@ This directory contains comprehensive test CSV files for validating the pocket2m
 - **Expected Behavior**: Should gracefully handle failures, continue with other URLs, log errors appropriately
 - **Use Case**: Validates error handling and network resilience (FETCH-02, FETCH-03, API-02, API-03)
 
+### defuddle-edge-cases.csv
+- **Purpose**: Test metadata parsing edge cases
+- **Contains**: Articles with and without tags, various tag formats (comma-separated, unicode, whitespace)
+- **Expected Behavior**: Tags from CSV are correctly parsed and formatted in YAML, empty tags handled gracefully
+- **Use Case**: Validates YAML frontmatter generation with Pocket metadata, tests defuddle integration with edge cases
+
 ## Usage in Tests
 
 These fixtures are designed to be used with the integration test suite to validate all 17 v1 requirements systematically. Each file tests specific aspects of the application's robustness and error handling capabilities.

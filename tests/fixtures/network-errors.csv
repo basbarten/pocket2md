@@ -1,11 +1,8 @@
 title,url,time_added,tags,status
-404 Not Found,http://nonexistent-domain-12345.com/page,1407757755,404,archive
-Invalid Domain,http://invalid..domain.com/test,1407757756,invalid,archive
-Timeout URL,http://slow-timeout-test.invalid/extremely-slow-response,1407757757,timeout,archive
-Connection Refused,http://127.0.0.1:99999/refused,1407757758,refused,archive
-DNS Error,http://dns-error-domain-xyz.nonexistent/page,1407757759,dns,archive
-SSL Error,https://self-signed-ssl.badssl.com/,1407757760,ssl,archive
-Redirect Loop,http://redirect-loop-test.invalid/infinite,1407757761,redirect,archive
-Large File Timeout,http://httpbin.org/delay/30,1407757762,delay,archive
-Rate Limited,http://httpbin.org/status/429,1407757763,rate-limit,archive
-Server Error,http://httpbin.org/status/500,1407757764,server-error,archive
+404 Not Found,http://httpbin.org/status/404,1407757755,404,archive
+Timeout URL,http://httpbin.org/delay/35,1407757757,timeout,archive
+Connection Refused,http://127.0.0.1:9999/refused,1407757758,refused,archive
+DNS Error,http://nonexistent-domain-xyz-12345.invalid/page,1407757759,dns,archive
+Server Error 500,http://httpbin.org/status/500,1407757764,server-error,archive
+Service Unavailable 503,http://httpbin.org/status/503,1407757765,503,archive
+Rate Limited 429,http://httpbin.org/status/429,1407757766,rate-limit,archive

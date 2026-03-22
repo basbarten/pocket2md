@@ -14,7 +14,9 @@ describe('metadata module', () => {
       expect(result).toEqual({
         title: 'Test Article Title',
         url: 'https://example.com/test-article',
-        date: '2026-03-19T14:19:00Z'
+        date: '2026-03-19T14:19:00Z',
+        timestamp: '2026-03-19T14:19:00Z',
+        tags: []
       });
     });
 
@@ -93,7 +95,7 @@ describe('metadata module', () => {
       const result = formatFrontmatter(metadata, content);
 
       expect(result).toContain('---\n');
-      expect(result).toContain('title: Test Article\n');
+      expect(result).toContain('title: "Test Article"\n');
       expect(result).toContain('url: "https://example.com/test"\n');
       expect(result).toContain('date: 2026-03-19T14:19:00Z\n');
       expect(result).toContain('---\n');
@@ -126,7 +128,7 @@ describe('metadata module', () => {
       const result = formatFrontmatter(metadata, content);
 
       expect(result).toContain('---\n');
-      expect(result).toContain('title: Test Article\n');
+      expect(result).toContain('title: "Test Article"\n');
       expect(result).toContain('---\n');
       expect(result.endsWith('\n')).toBe(true);
     });

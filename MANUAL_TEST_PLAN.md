@@ -22,14 +22,14 @@ This document provides comprehensive manual testing procedures for validating al
 ## Pre-Test Setup
 
 ### Environment Requirements
-- [ ] Node.js installed and working (`node --version`)
-- [ ] Project dependencies installed (`npm install`)
-- [ ] Internet connection for API testing
-- [ ] Sample data available (`data/part_000000.csv`)
+- [x] Node.js installed and working (`node --version`)
+- [x] Project dependencies installed (`npm install`)
+- [x] Internet connection for API testing
+- [x] Sample data available (`data/part_000000.csv`)
 
 ### Test Data Files
-- [ ] **Normal data:** `data/part_000000.csv` (actual Pocket export)
-- [ ] **Edge cases:** `tests/fixtures/` directory contains:
+- [x] **Normal data:** `data/part_000000.csv` (actual Pocket export)
+- [x] **Edge cases:** `tests/fixtures/` directory contains:
   - `empty.csv` - empty data test
   - `malformed.csv` - CSV parsing errors
   - `network-errors.csv` - broken URLs
@@ -47,17 +47,17 @@ node cli.js --input data/part_000000.csv --output manual-test-output
 ```
 
 **Verify:**
-- [ ] CLI accepts --input and --output arguments
-- [ ] Progress messages show "Processing article N/M"
-- [ ] Final summary displays success/error counts
-- [ ] Output directory is created
-- [ ] Custom output path works correctly
+- [x] CLI accepts --input and --output arguments
+- [x] Progress messages show "Processing article N/M"
+- [x] Final summary displays success/error counts
+- [x] Output directory is created
+- [x] Custom output path works correctly
 
 **Test Default Output:**
 ```bash
 node cli.js --input data/part_000000.csv
 ```
-- [ ] Creates `./output/` directory by default
+- [x] Creates `./output/` directory by default
 
 ---
 
@@ -69,9 +69,9 @@ node cli.js --input data/part_000000.csv --output csv-test-output
 ```
 
 **Verify:**
-- [ ] CSV file is parsed correctly
-- [ ] All URLs from CSV are processed in order
-- [ ] Column headers recognized (title, url, time_added, tags, status)
+- [x] CSV file is parsed correctly
+- [x] All URLs from CSV are processed in order
+- [x] Column headers recognized (title, url, time_added, tags, status)
 
 **Test Malformed CSV:**
 ```bash
@@ -79,9 +79,9 @@ node cli.js --input tests/fixtures/malformed.csv --output error-csv-output
 ```
 
 **Verify:**
-- [ ] Parsing errors handled gracefully
-- [ ] CLI doesn't crash on malformed rows
-- [ ] Error messages are clear and helpful
+- [x] Parsing errors handled gracefully
+- [x] CLI doesn't crash on malformed rows
+- [x] Error messages are clear and helpful
 
 ---
 
@@ -93,10 +93,10 @@ node cli.js --input tests/fixtures/network-errors.csv --output network-error-out
 ```
 
 **Verify:**
-- [ ] Articles processed sequentially (not parallel)
-- [ ] HTTP errors (404, 500) handled gracefully
-- [ ] Invalid URLs skipped with warning messages
-- [ ] Processing continues after errors
+- [x] Articles processed sequentially (not parallel)
+- [-] HTTP errors (404, 500) handled gracefully - no distinction between HTTP errors. Always "server error"
+- [x] Invalid URLs skipped with warning messages
+- [x] Processing continues after errors
 
 ---
 
@@ -106,12 +106,13 @@ node cli.js --input tests/fixtures/network-errors.csv --output network-error-out
 ```bash
 time node cli.js --input tests/fixtures/small-sample.csv --output rate-test-output
 ```
+small-sample.csv does not exist
 
 **Verify:**
-- [ ] URLs sent to defuddle.md API
-- [ ] ~5 second delay between API calls
-- [ ] API errors handled without crashing
-- [ ] Clean markdown content in output files (not raw HTML)
+- [x] URLs sent to defuddle.md API
+- [x] ~5 second delay between API calls
+- [ ] API errors handled without crashing - unable to test
+- [x] Clean markdown content in output files (not raw HTML)
 
 **Time Calculation:** For N articles, expect ~(N-1) × 5 seconds + processing time
 
@@ -125,10 +126,10 @@ node cli.js --input tests/fixtures/special-chars.csv --output special-chars-outp
 ```
 
 **Verify:**
-- [ ] Output directory created automatically
-- [ ] Filenames sanitized (no /\:?* characters)
-- [ ] Duplicate titles get numbered suffixes
-- [ ] Metadata included (title, URL, date fetched)
+- [x] Output directory created automatically
+- [ ] Filenames sanitized (no /\:?* characters) - wrong testset, unable to check
+- [x] Duplicate titles get numbered suffixes
+- [-] Metadata included (title, URL, date fetched) - 
 
 **Check Output Files:**
 - [ ] Files end with `.md` extension

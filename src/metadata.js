@@ -70,11 +70,7 @@ function createMetadata({ title, url, timestamp, tags = [] } = {}) {
   
   // Convert numeric timestamp to yyyy-mm-dd format
   if (typeof timestamp === 'number') {
-    const dateObj = new Date(timestamp);
-    const year = dateObj.getUTCFullYear();
-    const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(dateObj.getUTCDate()).padStart(2, '0');
-    date = `${year}-${month}-${day}`;
+    date = new Date(timestamp).toISOString().split('T')[0];
   }
   
   return {

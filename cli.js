@@ -219,14 +219,6 @@ async function processArticles() {
         console.error(`Warning: Malformed YAML in response from ${articleData.url}`);
       }
       
-      // Store the processed article data with content for later use
-      const processedArticle = {
-        ...articleData,
-        content: content,
-        contentLength: content.length,
-        defuddleFrontmatter: frontmatter
-      };
-      
       // Write article to markdown file with enhanced metadata
       const fileResult = writeArticleFile({
         title: articleData.title,

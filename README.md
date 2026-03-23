@@ -38,6 +38,8 @@ node cli.js --input your-pocket-export.csv
 - Rate Limited: 5-second delays between articles (by design)
 - Sequential Processing: Not parallel (respects API limits)
 
+Please note that Defuddle has a [limit of 1.000 free requests per month](https://defuddle.md/pricing).
+
 ## Development
 
 ### Project Structure

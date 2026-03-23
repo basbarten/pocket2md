@@ -89,7 +89,15 @@ function createMetadata({ title, url, timestamp, tags = [] } = {}) {
  * @returns {string} - Complete markdown with YAML frontmatter
  */
 function formatFrontmatter(metadata, content) {
-  // Helper function to safely quote YAML values if they contain special characters
+  /**
+   * Quotes YAML values that contain special characters to ensure valid YAML syntax
+   * Non-string values are returned unchanged. String values are checked for YAML
+   * special characters that require quoting (colons, brackets, quotes, etc.).
+   * If quoting is needed, wraps value in double quotes and escapes internal quotes.
+   * 
+   * @param {*} value - Value to check and potentially quote
+   * @returns {*} - Original value if not string or no quoting needed, quoted string otherwise
+   */
   function quoteIfNeeded(value) {
     if (typeof value !== 'string') {
       return value;

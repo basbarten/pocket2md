@@ -94,7 +94,19 @@ try {
 console.log(`Processing Pocket export: ${parsedArgs.input}`);
 console.log(`Output directory: ${parsedArgs.output}`);
 
-// Parse CSV file and process articles
+/**
+ * Processes all articles from the CSV file with rate limiting and error handling
+ * Reads CSV, validates URLs, fetches content from defuddle.md API, writes markdown files,
+ * and generates error logs for failures. Exits process on critical errors.
+ * 
+ * Side effects:
+ * - Writes markdown files to output directory
+ * - Writes error log file if failures occur
+ * - Calls process.exit(1) on critical errors
+ * - 5-second delay between successful API calls (rate limiting)
+ * 
+ * @returns {Promise<void>}
+ */
 async function processArticles() {
   try {
     console.log('Reading CSV file...');

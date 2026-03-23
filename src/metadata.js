@@ -95,11 +95,6 @@ function formatFrontmatter(metadata, content) {
       return value;
     }
     
-    // Don't quote date strings in yyyy-mm-dd or ISO 8601 format (they're valid YAML as-is)
-    if (/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?)?$/.test(value)) {
-      return value;
-    }
-    
     // Check for YAML special characters that require quoting
     const needsQuoting = /[":{}[\],&*#?|\-<>=!%@` ]/.test(value);
     
@@ -124,7 +119,7 @@ function formatFrontmatter(metadata, content) {
     '---',
     `title: ${quoteIfNeeded(metadata.title)}`,
     `url: ${quoteIfNeeded(metadata.url)}`,
-    `date: ${quoteIfNeeded(metadata.date)}`
+    `date: ${metadata.date}`
   ];
   
   // Add timestamp if present

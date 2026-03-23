@@ -5,94 +5,156 @@ const path = require('path');
 const Papa = require('papaparse');
 const { writeArticleFile } = require('./src/file-writer');
 const { parseDefuddleFrontmatter } = require('./src/metadata');
-
-// Parse command-line arguments using Node.js built-in parseArgs
 const { parseArgs } = require('node:util');
 
-let parsedArgs;
-try {
-  const { values } = parseArgs({
-    options: {
-      help: {
-        type: 'boolean',
-        short: 'h'
-      },
-      version: {
-        type: 'boolean', 
-        short: 'v'
-      },
-      input: {
-        type: 'string',
-        short: 'i'
-      },
-      output: {
-        type: 'string',
-        short: 'o'
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+function showHelp() {
+  console.log(`
+pocket2md - Convert Pocket export to Markdown files
+
+USAGE:
+  pocket2md --input <csv-file> [--output <directory>]
+
+OPTIONS:
+  -i, --input <file>      Path to Pocket CSV export file (required)
+  -o, --output <dir>      Output directory for markdown files (default: ./output/)
+  -h, --help              Show this help message
+  -v, --version           Show version number
+
+EXAMPLES:
+  pocket2md --input data/pocket_export.csv
+  pocket2md --input data/pocket_export.csv --output ./my_articles/
+  pocket2md -i data/part_000000.csv -o ./output/
+
+For more information, visit: https://github.com/pocket2md
+`);
+}
+
+function showVersion() {
+  const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf8'));
+  console.log(`pocket2md v${packageJson.version}`);
+}
+
+/**
+ * Validates a URL format before making API requests
+ * @param {string} url - The URL to validate
+ * @returns {boolean} - true if URL is valid, false otherwise
+ */
+function validateUrl(url) {
+  if (!url || typeof url !== 'string' || url.trim() === '') {
+    return false;
+  }
+  
+  const trimmedUrl = url.trim();
+  
+  try {
+    const urlObj = new URL(trimmedUrl);
+    // Only accept http and https protocols
+    if (!['http:', 'https:'].includes(urlObj.protocol)) {
+      return false;
+    }
+    // Check for valid hostname
+    if (!urlObj.hostname || urlObj.hostname === '') {
+      return false;
+    }
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+// ============================================================================
+// Core Processing Functions
+// ============================================================================
+
+/**
+ * Fetches article content from defuddle.md API
+ * @param {string} url - The article URL to fetch
+ * @param {string} title - The article title for error messages
+ * @returns {Promise<{content: string|null, error: string|null}>} - Object with content and error
+ */
+async function fetchArticleContent(url, title = 'Untitled') {
+  try {
+    const encodedUrl = encodeURIComponent(url);
+    const apiUrl = `https://defuddle.md/${encodedUrl}`;
+    
+    console.log(`Fetching: ${url}`);
+    
+    // Create abort controller for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    
+    const response = await fetch(apiUrl, {
+      signal: controller.signal,
+      headers: {
+        'User-Agent': 'pocket2md/1.0'
       }
-    },
-    allowPositionals: false
-  });
-  
-  // Handle help and version flags
-  if (values.help) {
-    showHelp();
-    process.exit(0);
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) {
+      let errorMessage;
+      if (response.status === 404) {
+        errorMessage = 'Content not found (404)';
+      } else if (response.status === 429) {
+        errorMessage = 'Rate limited (429)';
+      } else if (response.status === 500) {
+        errorMessage = 'Server error (500)';
+      } else if (response.status === 503) {
+        errorMessage = 'Service unavailable (503)';
+      } else if (response.status >= 400 && response.status < 500) {
+        errorMessage = `Client error (${response.status})`;
+      } else if (response.status >= 500) {
+        errorMessage = `Server error (${response.status})`;
+      } else {
+        errorMessage = `HTTP ${response.status}`;
+      }
+      
+      console.error(`Failed to fetch "${title}" (${url}) - ${errorMessage}`);
+      return { content: null, error: errorMessage };
+    }
+    
+    const content = await response.text();
+    
+    // Validate response content
+    if (!content || content.trim() === '') {
+      const errorMessage = 'Empty response';
+      console.error(`Failed to fetch "${title}" (${url}) - ${errorMessage}`);
+      return { content: null, error: errorMessage };
+    }
+    
+    return { content: content, error: null };
+  } catch (error) {
+    let errorMessage;
+    
+    if (error.name === 'AbortError') {
+      errorMessage = 'Timeout (30s)';
+    } else if (error.code === 'ENOTFOUND') {
+      errorMessage = 'DNS resolution failed';
+    } else if (error.code === 'ECONNREFUSED') {
+      errorMessage = 'Connection refused';
+    } else if (error.code === 'ECONNRESET') {
+      errorMessage = 'Connection reset';
+    } else if (error.code === 'ETIMEDOUT') {
+      errorMessage = 'Connection timeout';
+    } else if (error.message && error.message.toLowerCase().includes('certificate')) {
+      errorMessage = 'SSL certificate error';
+    } else if (error.message && error.message.toLowerCase().includes('redirect')) {
+      errorMessage = 'Too many redirects';
+    } else if (error.message) {
+      errorMessage = error.message;
+    } else {
+      errorMessage = 'Unknown network error';
+    }
+    
+    console.error(`Failed to fetch "${title}" (${url}) - ${errorMessage}`);
+    return { content: null, error: errorMessage };
   }
-  
-  if (values.version) {
-    showVersion();
-    process.exit(0);
-  }
-  
-  parsedArgs = values;
-} catch (err) {
-  console.error(`Error: ${err.message}`);
-  console.error('Run with --help to see usage information');
-  process.exit(1);
 }
-
-// Set default output directory
-if (!parsedArgs.output) {
-  parsedArgs.output = './output/';
-}
-
-// Show help if no arguments provided
-if (process.argv.slice(2).length === 0) {
-  showHelp();
-  process.exit(0);
-}
-
-// Validate required input flag
-if (!parsedArgs.input) {
-  console.error('Error: --input flag is required');
-  console.error('Run with --help to see usage information');
-  process.exit(1);
-}
-
-// Validate input file exists and is readable
-if (!fs.existsSync(parsedArgs.input)) {
-  console.error(`Error: Input file not found: ${parsedArgs.input}`);
-  process.exit(1);
-}
-
-try {
-  fs.accessSync(parsedArgs.input, fs.constants.R_OK);
-} catch (err) {
-  console.error(`Error: Cannot read input file: ${parsedArgs.input}`);
-  process.exit(1);
-}
-
-// Create output directory if it doesn't exist
-try {
-  fs.mkdirSync(parsedArgs.output, { recursive: true });
-} catch (err) {
-  console.error(`Error: Cannot create output directory: ${parsedArgs.output}`);
-  process.exit(1);
-}
-
-// Print startup messages
-console.log(`Processing Pocket export: ${parsedArgs.input}`);
-console.log(`Output directory: ${parsedArgs.output}`);
 
 /**
  * Processes all articles from the CSV file with rate limiting and error handling
@@ -107,7 +169,7 @@ console.log(`Output directory: ${parsedArgs.output}`);
  * 
  * @returns {Promise<void>}
  */
-async function processArticles() {
+async function processArticles(parsedArgs) {
   try {
     console.log('Reading CSV file...');
     
@@ -319,146 +381,94 @@ async function processArticles() {
   }
 }
 
+// ============================================================================
+// Main Execution
+// ============================================================================
+
+let parsedArgs;
+try {
+  const { values } = parseArgs({
+    options: {
+      help: {
+        type: 'boolean',
+        short: 'h'
+      },
+      version: {
+        type: 'boolean', 
+        short: 'v'
+      },
+      input: {
+        type: 'string',
+        short: 'i'
+      },
+      output: {
+        type: 'string',
+        short: 'o'
+      }
+    },
+    allowPositionals: false
+  });
+  
+  // Handle help and version flags
+  if (values.help) {
+    showHelp();
+    process.exit(0);
+  }
+  
+  if (values.version) {
+    showVersion();
+    process.exit(0);
+  }
+  
+  parsedArgs = values;
+} catch (err) {
+  console.error(`Error: ${err.message}`);
+  console.error('Run with --help to see usage information');
+  process.exit(1);
+}
+
+// Set default output directory
+if (!parsedArgs.output) {
+  parsedArgs.output = './output/';
+}
+
+// Show help if no arguments provided
+if (process.argv.slice(2).length === 0) {
+  showHelp();
+  process.exit(0);
+}
+
+// Validate required input flag
+if (!parsedArgs.input) {
+  console.error('Error: --input flag is required');
+  console.error('Run with --help to see usage information');
+  process.exit(1);
+}
+
+// Validate input file exists and is readable
+if (!fs.existsSync(parsedArgs.input)) {
+  console.error(`Error: Input file not found: ${parsedArgs.input}`);
+  process.exit(1);
+}
+
+try {
+  fs.accessSync(parsedArgs.input, fs.constants.R_OK);
+} catch (err) {
+  console.error(`Error: Cannot read input file: ${parsedArgs.input}`);
+  process.exit(1);
+}
+
+// Create output directory if it doesn't exist
+try {
+  fs.mkdirSync(parsedArgs.output, { recursive: true });
+} catch (err) {
+  console.error(`Error: Cannot create output directory: ${parsedArgs.output}`);
+  process.exit(1);
+}
+
+// Print startup messages
+console.log(`Processing Pocket export: ${parsedArgs.input}`);
+console.log(`Output directory: ${parsedArgs.output}`);
+
 // Run the async processing
-processArticles();
-
-function showHelp() {
-  console.log(`
-pocket2md - Convert Pocket export to Markdown files
-
-USAGE:
-  pocket2md --input <csv-file> [--output <directory>]
-
-OPTIONS:
-  -i, --input <file>      Path to Pocket CSV export file (required)
-  -o, --output <dir>      Output directory for markdown files (default: ./output/)
-  -h, --help              Show this help message
-  -v, --version           Show version number
-
-EXAMPLES:
-  pocket2md --input data/pocket_export.csv
-  pocket2md --input data/pocket_export.csv --output ./my_articles/
-  pocket2md -i data/part_000000.csv -o ./output/
-
-For more information, visit: https://github.com/pocket2md
-`);
-}
-
-/**
- * Validates a URL format before making API requests
- * @param {string} url - The URL to validate
- * @returns {boolean} - true if URL is valid, false otherwise
- */
-function validateUrl(url) {
-  if (!url || typeof url !== 'string' || url.trim() === '') {
-    return false;
-  }
-  
-  const trimmedUrl = url.trim();
-  
-  try {
-    const urlObj = new URL(trimmedUrl);
-    // Only accept http and https protocols
-    if (!['http:', 'https:'].includes(urlObj.protocol)) {
-      return false;
-    }
-    // Check for valid hostname
-    if (!urlObj.hostname || urlObj.hostname === '') {
-      return false;
-    }
-    return true;
-  } catch (error) {
-    return false;
-  }
-}
-
-/**
- * Fetches article content from defuddle.md API
- * @param {string} url - The article URL to fetch
- * @param {string} title - The article title for error messages
- * @returns {Promise<{content: string|null, error: string|null}>} - Object with content and error
- */
-async function fetchArticleContent(url, title = 'Untitled') {
-  try {
-    const encodedUrl = encodeURIComponent(url);
-    const apiUrl = `https://defuddle.md/${encodedUrl}`;
-    
-    console.log(`Fetching: ${url}`);
-    
-    // Create abort controller for timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-    
-    const response = await fetch(apiUrl, {
-      signal: controller.signal,
-      headers: {
-        'User-Agent': 'pocket2md/1.0'
-      }
-    });
-    
-    clearTimeout(timeoutId);
-    
-    if (!response.ok) {
-      let errorMessage;
-      if (response.status === 404) {
-        errorMessage = 'Content not found (404)';
-      } else if (response.status === 429) {
-        errorMessage = 'Rate limited (429)';
-      } else if (response.status === 500) {
-        errorMessage = 'Server error (500)';
-      } else if (response.status === 503) {
-        errorMessage = 'Service unavailable (503)';
-      } else if (response.status >= 400 && response.status < 500) {
-        errorMessage = `Client error (${response.status})`;
-      } else if (response.status >= 500) {
-        errorMessage = `Server error (${response.status})`;
-      } else {
-        errorMessage = `HTTP ${response.status}`;
-      }
-      
-      console.error(`Failed to fetch "${title}" (${url}) - ${errorMessage}`);
-      return { content: null, error: errorMessage };
-    }
-    
-    const content = await response.text();
-    
-    // Validate response content
-    if (!content || content.trim() === '') {
-      const errorMessage = 'Empty response';
-      console.error(`Failed to fetch "${title}" (${url}) - ${errorMessage}`);
-      return { content: null, error: errorMessage };
-    }
-    
-    return { content: content, error: null };
-  } catch (error) {
-    let errorMessage;
-    
-    if (error.name === 'AbortError') {
-      errorMessage = 'Timeout (30s)';
-    } else if (error.code === 'ENOTFOUND') {
-      errorMessage = 'DNS resolution failed';
-    } else if (error.code === 'ECONNREFUSED') {
-      errorMessage = 'Connection refused';
-    } else if (error.code === 'ECONNRESET') {
-      errorMessage = 'Connection reset';
-    } else if (error.code === 'ETIMEDOUT') {
-      errorMessage = 'Connection timeout';
-    } else if (error.message && error.message.toLowerCase().includes('certificate')) {
-      errorMessage = 'SSL certificate error';
-    } else if (error.message && error.message.toLowerCase().includes('redirect')) {
-      errorMessage = 'Too many redirects';
-    } else if (error.message) {
-      errorMessage = error.message;
-    } else {
-      errorMessage = 'Unknown network error';
-    }
-    
-    console.error(`Failed to fetch "${title}" (${url}) - ${errorMessage}`);
-    return { content: null, error: errorMessage };
-  }
-}
-
-function showVersion() {
-  const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf8'));
-  console.log(`pocket2md v${packageJson.version}`);
-}
+processArticles(parsedArgs);

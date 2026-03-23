@@ -296,7 +296,7 @@ async function processArticles() {
     }
     
     if (successfulCount > 0) {
-      console.log(`\n✅ Successfully processed ${successfulCount} articles for Phase 3 markdown generation`);
+      console.log(`\n✅ Successfully processed ${successfulCount} articles`);
     } else {
       console.log(`\n⚠️  No articles successfully processed`);
     }
@@ -308,10 +308,7 @@ async function processArticles() {
 }
 
 // Run the async processing
-processArticles().catch(error => {
-  console.error('Unexpected error:', error.message);
-  process.exit(1);
-});
+processArticles();
 
 function showHelp() {
   console.log(`

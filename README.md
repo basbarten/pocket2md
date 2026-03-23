@@ -38,6 +38,7 @@ node cli.js --input your-pocket-export.csv
 - Rate Limited: 5-second delays between articles (by design)
 - Sequential Processing: Not parallel (respects API limits)
 
+[!NOTE]
 Please note that Defuddle has a [limit of 1.000 free requests per month](https://defuddle.md/pricing).
 
 ## Development
@@ -75,7 +76,8 @@ npm test -- --verbose
 
 ## Note on Development
 
-This codebase was generated using AI assistance (Claude via OpenCode). While the code has been tested and validated, please review it carefully before use in production environments.
+[!IMPORTANT]
+This codebase was generated using AI assistance (spec-driven development using GSD with OpenCode). While the code has been tested and validated by humans, please review it carefully before use in production environments.
 
 ## License
 

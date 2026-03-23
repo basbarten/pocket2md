@@ -196,10 +196,14 @@ async function processArticles() {
     // Extract article data and parse tags
     const tags = article.tags ? article.tags.split(',').map(t => t.trim()).filter(t => t) : [];
     
+    // Convert timestamp from CSV string to number (seconds) and convert to milliseconds for JavaScript Date
+    // Pocket CSV uses Unix timestamps in seconds, JavaScript Date expects milliseconds
+    const timestamp = article.time_added ? parseInt(article.time_added, 10) * 1000 : null;
+    
     const articleData = {
       title: article.title || 'Untitled',
       url: article.url.trim(),
-      time_added: article.time_added || '',
+      time_added: timestamp,
       tags: tags
     };
     

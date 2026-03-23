@@ -37,10 +37,10 @@ node cli.js --input your-pocket-export.csv
 *Creates files in `./output/` directory*
 
 ## Known Limitations
-- **Internet Required:** Needs connection for article fetching
-- **API Dependency:** Requires defuddle.md service availability
-- **Rate Limited:** 5-second delays between articles (by design)
-- **Sequential Processing:** Not parallel (respects API limits)
+- Internet Required: Needs connection for article fetching
+- API Dependency: Requires defuddle.md service availability
+- Rate Limited: 5-second delays between articles (by design)
+- Sequential Processing: Not parallel (respects API limits)
 
 ## Error Handling
 
@@ -82,12 +82,9 @@ npm test -- --verbose
 
 ## System Requirements
 
-- **Node.js** 14+ (tested with current LTS)
-- **Internet connection** for article fetching
-- **Disk space** for markdown output files
-- **Memory** 100MB+ recommended for large exports
+- Node.js 14+ (tested with current LTS)
+- Internet connection for article fetching
 
 ## License
 
-[Add your license here]
-s
+MIT

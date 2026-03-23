@@ -235,8 +235,14 @@ async function processArticles() {
         successfulCount++;
       } else {
         console.error(`⚠️  Failed to write article "${articleData.title}": ${fileResult.error}`);
-        // Still count as successful API extraction, but note file error
-        successfulCount++;
+        failedCount++;
+        failedArticles.push({
+          index: articleNum,
+          title: articleData.title,
+          url: articleData.url,
+          error: `File write error: ${fileResult.error}`,
+          timestamp: new Date().toISOString()
+        });
       }
     } else {
       // API call failed, count as failed (not skipped - these are network/API errors)

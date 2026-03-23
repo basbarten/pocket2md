@@ -73,6 +73,10 @@ npm test -- --verbose
 
 - Node.js 14+ (tested with current LTS)
 
+## Note on Development
+
+This codebase was generated using AI assistance (Claude via OpenCode). While the code has been tested and validated, please review it carefully before use in production environments.
+
 ## License
 
 MIT

@@ -1,8 +1,14 @@
 # Node modules
 node_modules/
 
-# Jest
+# Output directories
+output/
+
+# Test artifacts
 test_output/
+verification_output/
+test-*-output/
+test-*.csv
 
 # Opencode
 .opencode/

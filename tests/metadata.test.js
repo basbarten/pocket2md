@@ -32,7 +32,7 @@ describe('metadata module', () => {
       expect(result.title).toBe('Article with "quotes" and: special chars');
     });
 
-    it('should format timestamps as ISO 8601 strings', () => {
+    it('should format timestamps as yyyy-mm-dd date strings', () => {
       const input = {
         title: 'Test Article',
         url: 'https://example.com/test',
@@ -41,7 +41,8 @@ describe('metadata module', () => {
 
       const result = createMetadata(input);
 
-      expect(result.date).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/);
+      expect(result.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(result.date).toBe('2026-03-19');
     });
 
     it('should include tags array when provided', () => {
@@ -69,7 +70,7 @@ describe('metadata module', () => {
       expect(result.tags).toEqual([]);
     });
 
-    it('should preserve Unix timestamp alongside ISO date', () => {
+    it('should preserve Unix timestamp alongside yyyy-mm-dd date', () => {
       const input = {
         title: 'Test Article',
         url: 'https://example.com/test',
@@ -79,7 +80,8 @@ describe('metadata module', () => {
       const result = createMetadata(input);
 
       expect(result.timestamp).toBe(1773929978000);
-      expect(result.date).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/);
+      expect(result.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(result.date).toBe('2026-03-19');
     });
   });
 

@@ -61,16 +61,20 @@ function parseDefuddleFrontmatter(apiResponse) {
  * @param {Object} params - Parameters object
  * @param {string} params.title - Article title
  * @param {string} params.url - Article URL
- * @param {string|number} params.timestamp - Article timestamp (ISO string or epoch ms)
+ * @param {string|number} params.timestamp - Article timestamp (yyyy-mm-dd string or epoch ms)
  * @param {Array<string>} [params.tags] - Optional array of tags
- * @returns {Object} - Metadata object with title, url, date, timestamp, and tags
+ * @returns {Object} - Metadata object with title, url, date (yyyy-mm-dd), timestamp, and tags
  */
 function createMetadata({ title, url, timestamp, tags = [] } = {}) {
   let date = timestamp;
   
-  // Convert numeric timestamp to ISO string
+  // Convert numeric timestamp to yyyy-mm-dd format
   if (typeof timestamp === 'number') {
-    date = new Date(timestamp).toISOString();
+    const dateObj = new Date(timestamp);
+    const year = dateObj.getUTCFullYear();
+    const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getUTCDate()).padStart(2, '0');
+    date = `${year}-${month}-${day}`;
   }
   
   return {
@@ -95,8 +99,8 @@ function formatFrontmatter(metadata, content) {
       return value;
     }
     
-    // Don't quote ISO 8601 date strings (they're valid YAML as-is)
-    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?$/.test(value)) {
+    // Don't quote date strings in yyyy-mm-dd or ISO 8601 format (they're valid YAML as-is)
+    if (/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?)?$/.test(value)) {
       return value;
     }
     

@@ -4,6 +4,9 @@ node_modules/
 # Output directories
 output/
 
+# Personal data
+data/
+
 # Test artifacts
 test_output/
 verification_output/

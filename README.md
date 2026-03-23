@@ -41,7 +41,14 @@ node cli.js --input your-pocket-export.csv
 > [!NOTE]
 > Please note that Defuddle has a [limit of 1.000 free requests per month](https://defuddle.md/pricing).
 
+## System Requirements
+
+- Node.js 14+ (tested with current LTS)
+
 ## Development
+
+> [!IMPORTANT]
+> This codebase was generated using AI assistance (spec-driven development using GSD with OpenCode). While the code has been tested and validated by humans, please review it carefully before use in production environments.
 
 ### Project Structure
 ```
@@ -69,15 +76,6 @@ npm test -- --testPathPatterns=integration
 # Run with verbose output
 npm test -- --verbose
 ```
-
-## System Requirements
-
-- Node.js 14+ (tested with current LTS)
-
-## Note on Development
-
-> [!IMPORTANT]
-> This codebase was generated using AI assistance (spec-driven development using GSD with OpenCode). While the code has been tested and validated by humans, please review it carefully before use in production environments.
 
 ## License
 

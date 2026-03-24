@@ -7,6 +7,10 @@ Pocket2md processes your Pocket export CSV file and converts saved articles into
 > [!IMPORTANT]
 > This codebase was generated using AI assistance (spec-driven development using GSD with OpenCode). While the code has been tested and validated by humans, please review it carefully before use.
 
+## Background
+
+This tool was created because Mozilla shut down the Pocket read-it-later service from July 2025. I wanted a permanent archive of articles that is not depending on a cloud service. 
+
 ## Quick Start
 
 ### Installation

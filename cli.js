@@ -114,7 +114,7 @@ async function fetchArticleContent(url, title = 'Untitled') {
         errorMessage = `HTTP ${response.status}`;
       }
       
-      console.error(`Failed to fetch "${title}" (${url}) - ${errorMessage}`);
+      console.error(`Failed to fetch ${url} - ${errorMessage}`);
       return { content: null, error: errorMessage };
     }
     
@@ -171,7 +171,7 @@ async function fetchArticleContent(url, title = 'Untitled') {
  */
 async function processArticles(parsedArgs) {
   try {
-    console.log('Reading CSV file...');
+    console.log('\nReading CSV file...');
     
     // Read file with UTF-8 encoding requirement
     let csvContent;
@@ -251,7 +251,7 @@ async function processArticles(parsedArgs) {
     const article = articles[i];
     const articleNum = i + 1;
     
-    console.log(`Processing article ${articleNum}/${articles.length}...`);
+    console.log(`\nProcessing article ${articleNum}/${articles.length}...`);
     
     // Skip articles with missing URLs
     if (!article.url || article.url.trim() === '') {
@@ -305,10 +305,10 @@ async function processArticles(parsedArgs) {
       });
       
       if (fileResult.success) {
-        console.log(`✅ Wrote article: ${path.basename(fileResult.filepath)}`);
+        console.log(`Wrote article: ${path.basename(fileResult.filepath)}`);
         successfulCount++;
       } else {
-        console.error(`⚠️  Failed to write article "${articleData.title}": ${fileResult.error}`);
+        console.error(`Failed to write article "${articleData.title}": ${fileResult.error}`);
         failedCount++;
         failedArticles.push({
           index: articleNum,
@@ -341,10 +341,11 @@ async function processArticles(parsedArgs) {
     const totalProcessed = successfulCount + skippedCount + failedCount;
     
     console.log('');
-    console.log('=== Processing Complete ===');
-    console.log(`  • ${successfulCount} successful (content extracted)`);
-    console.log(`  • ${skippedCount} skipped (invalid URLs)`);
-    console.log(`  • ${failedCount} failed (network/API errors)`);
+    console.log('Processing complete');
+    console.log('─────────────────────────────────────');
+    console.log(` • ${successfulCount} successful (content extracted)`);
+    console.log(` • ${skippedCount} skipped (invalid URLs)`);
+    console.log(` • ${failedCount} failed (network/API errors)`);
     console.log(`Total articles processed: ${totalProcessed}`);
     
     // Write error log file if there were failures
@@ -365,18 +366,12 @@ async function processArticles(parsedArgs) {
         // Ensure output directory exists before writing error log
         fs.mkdirSync(parsedArgs.output, { recursive: true });
         fs.writeFileSync(errorLogPath, logContent, 'utf8');
-        console.error(`Error log written to: ${errorLogPath}`);
+        console.error(`\nError log written to: ${errorLogPath}`);
       } catch (err) {
-        console.error(`Warning: Could not write error log: ${err.message}`);
+        console.error(`\nWarning: Could not write error log: ${err.message}`);
       }
     }
-    
-    if (successfulCount > 0) {
-      console.log(`\n✅ Successfully processed ${successfulCount} articles`);
-    } else {
-      console.log(`\n⚠️  No articles successfully processed`);
-    }
-    
+      
   } catch (error) {
     console.error('Error processing CSV file:', error.message);
     process.exit(1);

@@ -55,12 +55,17 @@ node cli.js --input your-pocket-export.csv
 pocket2md/
 ├── cli.js                 # Main CLI interface
 ├── src/                   # Core application code
-├── tests/                 # Automated and manual tests
-│   ├── integration-validation.test.js
+│   ├── file-writer.js     # Markdown file writing
+│   ├── filename-utils.js  # Filename sanitization
+│   └── metadata.js        # Article metadata handling
+├── tests/                 # Automated tests
+│   ├── *.test.js          # Unit and integration tests
 │   └── fixtures/          # Test data files
-documentation
-├── data/                  # Sample Pocket export data
+├── LICENSE                # MIT license
+└── README.md              # This file
 ```
+
+**Note:** The `data/` directory is excluded from git (add your Pocket export CSV files there).
 
 ### Running Tests
 ```bash

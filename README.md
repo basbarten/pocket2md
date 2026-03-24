@@ -4,6 +4,9 @@
 
 Pocket2md processes your Pocket export CSV file and converts saved articles into clean, readable markdown files. It fetches each article, cleans the HTML using the defuddle.md API, and saves the result as properly formatted markdown with metadata.
 
+> [!IMPORTANT]
+> This codebase was generated using AI assistance (spec-driven development using GSD with OpenCode). While the code has been tested and validated by humans, please review it carefully before use.
+
 ## Quick Start
 
 ### Installation
@@ -46,9 +49,6 @@ node cli.js --input your-pocket-export.csv
 - Node.js 14+ (tested with current LTS)
 
 ## Development
-
-> [!IMPORTANT]
-> This codebase was generated using AI assistance (spec-driven development using GSD with OpenCode). While the code has been tested and validated by humans, please review it carefully before use in production environments.
 
 ### Project Structure
 ```

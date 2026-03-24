@@ -39,12 +39,18 @@ function writeArticleFile({ title, content, outputDir, url, timestamp, tags = []
     const uniqueFilename = resolveConflicts(outputDir, filename);
     const filepath = path.join(outputDir, uniqueFilename);
 
-    // Prepare content - add metadata frontmatter if url/timestamp provided
+    // Prepare content - add title header and metadata frontmatter if url/timestamp provided
     let finalContent = content;
+    
+    // Add title as markdown header at the start of the content
+    if (title && title.trim() !== '') {
+      finalContent = `# ${title}\n\n${content}`;
+    }
+    
     if (url || timestamp) {
       const pocketMetadata = createMetadata({ title, url, timestamp, tags });
       const metadata = mergeDefuddleMetadata(defuddleFrontmatter, pocketMetadata);
-      finalContent = formatFrontmatter(metadata, content);
+      finalContent = formatFrontmatter(metadata, finalContent);
     }
 
     // Write the file

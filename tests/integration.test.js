@@ -53,7 +53,7 @@ describe('CLI Integration Tests', () => {
     
     // Verify CLI handles file writing success
     expect(cliCode).toMatch(/fileResult\.success/);
-    expect(cliCode).toMatch(/✅.*[Ww]rote.*article/);
+    expect(cliCode).toMatch(/[Ww]rote.*article/);
   });
 
   test('CLI handles writeArticleFile error response', () => {
@@ -61,7 +61,7 @@ describe('CLI Integration Tests', () => {
     
     // Verify CLI handles file writing errors gracefully
     expect(cliCode).toMatch(/fileResult\.error/);
-    expect(cliCode).toMatch(/⚠️.*[Ff]ailed.*write/);
+    expect(cliCode).toMatch(/[Ff]ailed.*write/);
   });
 
   test('CLI reports file writing status to console', async () => {

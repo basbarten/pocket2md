@@ -29,7 +29,7 @@ describe('writeArticleFile', () => {
   test('writes article file with sanitized filename', () => {
     const result = writeArticleFile({
       title: 'Article with/Special<Characters>',
-      content: '# Article Content',
+      content: 'Article Content',
       outputDir: tempDir
     });
     
@@ -38,13 +38,13 @@ describe('writeArticleFile', () => {
     expect(fs.existsSync(result.filepath)).toBe(true);
     
     const content = fs.readFileSync(result.filepath, 'utf8');
-    expect(content).toBe('# Article Content');
+    expect(content).toBe('# Article with/Special<Characters>\n\nArticle Content');
   });
 
   test('writes complete markdown with YAML frontmatter when metadata provided', () => {
     const result = writeArticleFile({
       title: 'Test Article',
-      content: '# Article Content\n\nThis is the body.',
+      content: 'Article Content\n\nThis is the body.',
       url: 'https://example.com/article',
       timestamp: '2026-03-19T14:19:00Z',
       outputDir: tempDir
@@ -61,26 +61,26 @@ describe('writeArticleFile', () => {
     expect(writtenContent).toContain('timestamp: 2026-03-19T14:19:00Z\n');
     expect(writtenContent).toContain('tags: []\n');
     expect(writtenContent).toContain('---\n');
-    expect(writtenContent).toContain('# Article Content\n\nThis is the body.');
+    expect(writtenContent).toContain('# Test Article\n\nArticle Content\n\nThis is the body.');
   });
 
   test('maintains backward compatibility without metadata', () => {
     const result = writeArticleFile({
       title: 'Legacy Article',
-      content: '# Legacy Content',
+      content: 'Legacy Content',
       outputDir: tempDir
     });
     
     expect(result.success).toBe(true);
     const content = fs.readFileSync(result.filepath, 'utf8');
-    expect(content).toBe('# Legacy Content');
+    expect(content).toBe('# Legacy Article\n\nLegacy Content');
     expect(content).not.toContain('---');
   });
 
   test('handles metadata with special characters', () => {
     const result = writeArticleFile({
       title: 'Article with "quotes" and: special chars',
-      content: '# Content here',
+      content: 'Content here',
       url: 'https://example.com/test?param=value&other=true',
       timestamp: '2026-03-19T14:19:00Z',
       outputDir: tempDir
@@ -91,20 +91,21 @@ describe('writeArticleFile', () => {
     const writtenContent = fs.readFileSync(result.filepath, 'utf8');
     expect(writtenContent).toContain('title: "Article with \\"quotes\\" and: special chars"');
     expect(writtenContent).toContain('url: "https://example.com/test?param=value&other=true"');
+    expect(writtenContent).toContain('# Article with "quotes" and: special chars\n\nContent here');
   });
 
   test('handles duplicate titles with conflict resolution', () => {
     // First article
     const result1 = writeArticleFile({
       title: 'Duplicate Title',
-      content: '# First Article',
+      content: 'First Article',
       outputDir: tempDir
     });
     
     // Second article with same title
     const result2 = writeArticleFile({
       title: 'Duplicate Title',
-      content: '# Second Article',
+      content: 'Second Article',
       outputDir: tempDir
     });
     
@@ -114,8 +115,8 @@ describe('writeArticleFile', () => {
     expect(result2.filepath).toBe(path.join(tempDir, 'Duplicate-Title-1.md'));
     
     // Verify both files exist with correct content
-    expect(fs.readFileSync(result1.filepath, 'utf8')).toBe('# First Article');
-    expect(fs.readFileSync(result2.filepath, 'utf8')).toBe('# Second Article');
+    expect(fs.readFileSync(result1.filepath, 'utf8')).toBe('# Duplicate Title\n\nFirst Article');
+    expect(fs.readFileSync(result2.filepath, 'utf8')).toBe('# Duplicate Title\n\nSecond Article');
   });
 
   test('returns structured result object on success', () => {
@@ -162,24 +163,44 @@ describe('writeArticleFile', () => {
   test('handles empty title with fallback', () => {
     const result = writeArticleFile({
       title: '',
-      content: '# Content',
+      content: 'Content',
       outputDir: tempDir
     });
     
     expect(result.success).toBe(true);
     expect(result.filepath).toBe(path.join(tempDir, 'untitled-article.md'));
+    
+    // Empty title should not add a header
+    const content = fs.readFileSync(result.filepath, 'utf8');
+    expect(content).toBe('Content');
+  });
+
+  test('adds title as markdown header at the start of content', () => {
+    const result = writeArticleFile({
+      title: 'My Article Title',
+      content: 'This is the article content.',
+      outputDir: tempDir
+    });
+    
+    expect(result.success).toBe(true);
+    const content = fs.readFileSync(result.filepath, 'utf8');
+    expect(content).toBe('# My Article Title\n\nThis is the article content.');
+    expect(content).toMatch(/^# My Article Title\n\n/);
   });
 
   test('integrates with filename-utils for sanitization', () => {
     const result = writeArticleFile({
       title: 'Title<>:"/\\|?*with-all-problems',
-      content: '# Clean content',
+      content: 'Clean content',
       outputDir: tempDir
     });
     
     expect(result.success).toBe(true);
     expect(result.filepath).toBe(path.join(tempDir, 'Title-with-all-problems.md'));
     expect(fs.existsSync(result.filepath)).toBe(true);
+    
+    const content = fs.readFileSync(result.filepath, 'utf8');
+    expect(content).toBe('# Title<>:"/\\|?*with-all-problems\n\nClean content');
   });
 
   test('handles very long content without issues', () => {
@@ -192,6 +213,6 @@ describe('writeArticleFile', () => {
     
     expect(result.success).toBe(true);
     const writtenContent = fs.readFileSync(result.filepath, 'utf8');
-    expect(writtenContent).toBe(longContent);
+    expect(writtenContent).toBe('# Long Content Test\n\n' + longContent);
   });
 });

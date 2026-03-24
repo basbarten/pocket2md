@@ -80,7 +80,7 @@ describe('Integration Validation Tests - All 17 v1 Requirements', () => {
       const result = await runCLI(`--input "${csvPath}" --output "${outputDir}"`);
       
       expect(result.stdout).toMatch(/Processing article \d+\/\d+/);
-      expect(result.stdout).toMatch(/Articles processed: \d+/);
+      expect(result.stdout).toMatch(/Total articles processed: \d+/);
     });
   });
 

@@ -51,7 +51,7 @@ Another Article,https://example2.com,1407757756,web|tech,archive`;
       expect(result).toContain('Found 2 rows in CSV');
       expect(result).toContain('Processing article 1/2...');
       expect(result).toContain('Processing article 2/2...');
-      expect(result).toContain('Processed 2 articles: 2 successful, 0 failed');
+      expect(result).toContain('Total articles processed: 2');
     });
     
     test('should handle CSV with headers in different order', () => {
@@ -65,7 +65,7 @@ https://example.com,Test Article,tag1|tag2,1407757755,archive`;
       
       expect(result).toContain('Found 1 rows in CSV');
       expect(result).toContain('Processing article 1/1...');
-      expect(result).toContain('Processed 1 articles: 1 successful, 0 failed');
+      expect(result).toContain('Total articles processed: 1');
     });
     
     test('should detect and report empty CSV files', () => {
@@ -74,7 +74,7 @@ https://example.com,Test Article,tag1|tag2,1407757755,archive`;
       
       const result = execSync(`node cli.js --input "${testFile}" --output "${testOutputDir}"`, { encoding: 'utf8', stdio: 'pipe' });
       
-      expect(result).toContain('Processed 0 articles: 0 successful, 0 failed');
+      expect(result).toContain('Total articles processed: 0');
     });
     
     test('should validate required columns exist', () => {
@@ -113,7 +113,7 @@ Article 3,https://subdomain.example.com/path/to/article,1407757757,tag3,archive`
       expect(result).toContain('Processing article 1/3...');
       expect(result).toContain('Processing article 2/3...');
       expect(result).toContain('Processing article 3/3...');
-      expect(result).toContain('Processed 3 articles: 3 successful, 0 failed');
+      expect(result).toContain('Total articles processed: 3');
     });
     
     test('should skip articles with missing URLs', () => {
@@ -127,7 +127,9 @@ Empty URL Article,   ,1407757757,tag3,archive`;
       
       const result = execSync(`node cli.js --input "${testFile}" --output "${testOutputDir}"`, { encoding: 'utf8', stdio: 'pipe' });
       
-      expect(result).toContain('Processed 3 articles: 1 successful, 2 failed');
+      // Verify that 2 articles were skipped due to missing URLs
+      expect(result).toContain('2 skipped (invalid URLs)');
+      expect(result).toContain('Total articles processed: 3');
     });
     
     test('should handle articles with whitespace in URLs', () => {
@@ -140,7 +142,7 @@ Trimmed URL,  https://example.com/article  ,1407757755,tag1,archive`;
       const result = execSync(`node cli.js --input "${testFile}" --output "${testOutputDir}"`, { encoding: 'utf8' });
       
       expect(result).toContain('Processing article 1/1...');
-      expect(result).toContain('Processed 1 articles: 1 successful, 0 failed');
+      expect(result).toContain('Total articles processed: 1');
     });
     
     test('should extract all article fields including title, time_added, and tags', () => {
@@ -157,7 +159,7 @@ Article with commas in title,https://example3.com,1407757757,web|tech,archive`;
       expect(result).toContain('Processing article 1/3...');
       expect(result).toContain('Processing article 2/3...');
       expect(result).toContain('Processing article 3/3...');
-      expect(result).toContain('Processed 3 articles: 3 successful, 0 failed');
+      expect(result).toContain('Total articles processed: 3');
     });
   });
   
@@ -241,7 +243,9 @@ Valid Article 2,https://example2.com,1407757757,tag3,archive`;
       
       const result = execSync(`node cli.js --input "${testFile}" --output "${testOutputDir}"`, { encoding: 'utf8', stdio: 'pipe' });
       
-      expect(result).toContain('Processed 3 articles: 2 successful, 1 failed');
+      // Verify that processing continues and skipped articles are reported
+      expect(result).toContain('1 skipped (invalid URLs)');
+      expect(result).toContain('Total articles processed: 3');
     });
   });
 });

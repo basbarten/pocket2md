@@ -153,7 +153,7 @@ Article 3,https://example.com/3,1407757757,tag3,archive`;
         expect(result).toContain('Processing article 1/3...');
         expect(result).toContain('Processing article 2/3...');
         expect(result).toContain('Processing article 3/3...');
-        expect(result).toContain('Processed 3 articles: 3 successful, 0 failed');
+        expect(result).toContain('Total articles processed: 3');
       } finally {
         if (fs.existsSync(multiTestFile)) {
           fs.unlinkSync(multiTestFile);
@@ -161,13 +161,17 @@ Article 3,https://example.com/3,1407757757,tag3,archive`;
       }
     });
     
-    test('should show final summary with success and failure counts', () => {
+    test('should show final summary with breakdown and total', () => {
       const result = execSync(`node cli.js --input "${testCsvFile}"`, { encoding: 'utf8' });
       
-      expect(result).toContain('Processed 1 articles: 1 successful, 0 failed');
+      // Verify breakdown format exists
+      expect(result).toMatch(/• \d+ successful \(content extracted\)/);
+      expect(result).toMatch(/• \d+ skipped \(invalid URLs\)/);
+      expect(result).toMatch(/• \d+ failed \(network\/API errors\)/);
+      expect(result).toContain('Total articles processed: 1');
     });
     
-    test('should count skipped articles in failure count', () => {
+    test('should report skipped articles separately', () => {
       const csvWithMissingUrl = `title,url,time_added,tags,status
 Valid Article,https://example.com,1407757755,tag1,archive
 Invalid Article,,1407757756,tag2,archive`;
@@ -178,7 +182,11 @@ Invalid Article,,1407757756,tag2,archive`;
       try {
         const result = execSync(`node cli.js --input "${testFileWithInvalid}"`, { encoding: 'utf8', stdio: 'pipe' });
         
-        expect(result).toContain('Processed 2 articles: 1 successful, 1 failed');
+        // Check that skipped articles are reported separately
+        expect(result).toContain('1 skipped (invalid URLs)');
+        
+        // Check summary line shows total processed
+        expect(result).toContain('Total articles processed: 2');
       } finally {
         if (fs.existsSync(testFileWithInvalid)) {
           fs.unlinkSync(testFileWithInvalid);

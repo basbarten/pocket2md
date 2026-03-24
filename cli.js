@@ -189,7 +189,7 @@ async function processArticles(parsedArgs) {
   // Check for empty CSV files
   if (csvContent.trim() === '') {
     console.error('Warning: CSV file is empty');
-    console.log('Processed 0 articles: 0 successful, 0 failed');
+    console.log('Total articles processed: 0');
     return;
   }
   
@@ -342,14 +342,10 @@ async function processArticles(parsedArgs) {
     
     console.log('');
     console.log('=== Processing Complete ===');
-    console.log(`Articles processed: ${totalProcessed}`);
     console.log(`  • ${successfulCount} successful (content extracted)`);
     console.log(`  • ${skippedCount} skipped (invalid URLs)`);
     console.log(`  • ${failedCount} failed (network/API errors)`);
-    
-    // Add expected format for backward compatibility with existing tests
-    const totalFailed = skippedCount + failedCount;
-    console.log(`Processed ${totalProcessed} articles: ${successfulCount} successful, ${totalFailed} failed`);
+    console.log(`Total articles processed: ${totalProcessed}`);
     
     // Write error log file if there were failures
     if (failedArticles.length > 0) {
@@ -365,8 +361,14 @@ async function processArticles(parsedArgs) {
         )
       ].join('\n');
       
-      fs.writeFileSync(errorLogPath, logContent, 'utf8');
-      console.error(`Error log written to: ${errorLogPath}`);
+      try {
+        // Ensure output directory exists before writing error log
+        fs.mkdirSync(parsedArgs.output, { recursive: true });
+        fs.writeFileSync(errorLogPath, logContent, 'utf8');
+        console.error(`Error log written to: ${errorLogPath}`);
+      } catch (err) {
+        console.error(`Warning: Could not write error log: ${err.message}`);
+      }
     }
     
     if (successfulCount > 0) {
